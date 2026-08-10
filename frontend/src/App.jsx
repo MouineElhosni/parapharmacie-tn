@@ -16,12 +16,15 @@ import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import ScrollToTop from "./components/ScrollToTop";
+import WhatsAppFloat from "./components/WhatsAppFloat";
 
 function App() {
   return (
     <AuthProvider>
       <ToastProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Navbar />
           <main className="min-h-screen page-background">
             <Routes>
@@ -53,6 +56,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <WhatsAppFloat />
         </BrowserRouter>
       </ToastProvider>
     </AuthProvider>
