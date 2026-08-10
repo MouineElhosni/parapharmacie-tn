@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import API, { productImage } from "../services/api";
 import { ORDER_STATUSES, STATUS_LABELS, statusColors } from "../utils/status";
 import { waLinkTo, STORE_NAME } from "../config";
@@ -95,6 +95,11 @@ function Admin() {
     });
     setImageFile(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const formRef = useRef(null);
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const uploadImage = async () => {
@@ -319,90 +324,125 @@ function Admin() {
 
       {/* ===================== PRODUCTS ===================== */}
       {tab === "products" && (
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="bg-white shadow-xl rounded-2xl p-6 h-fit lg:sticky lg:top-24">
-            <h2 className="text-xl font-bold mb-5">
-              {editingId ? `Modifier le produit #${editingId}` : "Ajouter un produit"}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                name="name"
-                placeholder="Nom du produit"
-                value={form.name}
-                onChange={handleChange}
-                className={inputClass}
-                required
-              />
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={form.description}
-                onChange={handleChange}
-                className={`${inputClass} h-24`}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                  name="price"
-                  type="number"
-                  step="0.01"
-                  placeholder="Prix (DT)"
-                  value={form.price}
-                  onChange={handleChange}
-                  className={inputClass}
-                  required
-                  min="0.01"
-                />
-                <input
-                  name="stock"
-                  type="number"
-                  placeholder="Stock"
-                  value={form.stock}
-                  onChange={handleChange}
-                  className={inputClass}
-                  min="0"
-                />
-              </div>
-              <input
-                name="category"
-                placeholder="Catégorie"
-                value={form.category}
-                onChange={handleChange}
-                className={inputClass}
-              />
-              <div>
-                <label className="block text-sm text-gray-500 mb-2">Image du produit</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files[0])}
-                  className="w-full text-sm text-gray-500"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
-                >
-                  {submitting ? "Enregistrement..." : editingId ? "Mettre à jour" : "Ajouter le produit"}
-                </button>
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="bg-gray-200 text-gray-700 px-4 rounded-lg hover:bg-gray-300"
-                  >
-                    Annuler
-                  </button>
-                )}
-              </div>
-            </form>
+        <div>
+          <div className="flex items-center gap-3 mb-5 lg:hidden">
+            <button
+              onClick={scrollToForm}
+              className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-600/20 active:scale-[0.98] transition"
+            >
+              + Ajouter un produit
+            </button>
+            <button
+              onClick={loadProducts}
+              className="bg-white px-5 py-4 rounded-2xl font-semibold text-lg shadow active:scale-[0.98] transition"
+            >
+              Actualiser
+            </button>
           </div>
 
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div
+              ref={formRef}
+              id="product-form"
+              className="bg-white shadow-xl rounded-2xl p-5 sm:p-6 h-fit lg:sticky lg:top-24 scroll-mt-24"
+            >
+              <h2 className="text-xl font-bold mb-5">
+                {editingId ? `Modifier le produit #${editingId}` : "Ajouter un produit"}
+              </h2>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-gray-500 mb-1.5">Nom du produit</label>
+                  <input
+                    name="name"
+                    placeholder="Ex : Crème hydratante"
+                    value={form.name}
+                    onChange={handleChange}
+                    className={inputClass}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-500 mb-1.5">Description</label>
+                  <textarea
+                    name="description"
+                    placeholder="Description du produit"
+                    value={form.description}
+                    onChange={handleChange}
+                    className={`${inputClass} h-24`}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1.5">Prix (DT)</label>
+                    <input
+                      name="price"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.000"
+                      value={form.price}
+                      onChange={handleChange}
+                      className={inputClass}
+                      required
+                      min="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1.5">Stock</label>
+                    <input
+                      name="stock"
+                      type="number"
+                      placeholder="0"
+                      value={form.stock}
+                      onChange={handleChange}
+                      className={inputClass}
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-500 mb-1.5">Catégorie</label>
+                  <input
+                    name="category"
+                    placeholder="Ex : Soins, Vitamines"
+                    value={form.category}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-500 mb-1.5">Image du produit</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                    className="w-full text-sm text-gray-500 bg-gray-50 border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:font-semibold file:text-sm"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition disabled:opacity-50"
+                  >
+                    {submitting ? "Enregistrement..." : editingId ? "Mettre à jour" : "Ajouter le produit"}
+                  </button>
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={resetForm}
+                      className="bg-gray-200 text-gray-700 px-5 py-4 rounded-xl font-semibold hover:bg-gray-300"
+                    >
+                      Annuler
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-2 gap-3 flex-wrap">
               <h2 className="text-xl font-bold">Tous les produits ({products.length})</h2>
               <button
                 onClick={loadProducts}
@@ -431,7 +471,7 @@ function Admin() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold">{p.name}</h3>
+                      <h3 className="font-bold break-words">{p.name}</h3>
                       <p className="text-sm text-gray-500 truncate">{p.description}</p>
                       <p className="text-sm mt-1">
                         <span className="text-emerald-600 font-bold">{Number(p.price).toFixed(2)} DT</span>
@@ -447,13 +487,13 @@ function Admin() {
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => startEdit(p)}
-                      className="flex-1 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 font-semibold"
+                      className="flex-1 bg-gray-100 px-4 py-3 rounded-xl hover:bg-gray-200 font-bold text-base"
                     >
                       Modifier
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
-                      className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 font-semibold"
+                      className="flex-1 bg-red-50 text-red-600 px-4 py-3 rounded-xl hover:bg-red-100 font-bold text-base"
                     >
                       Supprimer
                     </button>
@@ -461,6 +501,7 @@ function Admin() {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       )}
