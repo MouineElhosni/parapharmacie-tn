@@ -56,8 +56,6 @@ function Order() {
     e.preventDefault();
     setSubmitting(true);
 
-    const popup = window.open("", "_blank");
-
     try {
       const res = await API.post("/orders", {
         customer_name: form.customer_name,
@@ -81,12 +79,6 @@ function Order() {
         `Merci de confirmer et de planifier la livraison 🙏`,
       ].join("\n");
 
-      if (popup) {
-        popup.location.href = waLinkStore(message);
-      } else {
-        window.open(waLinkStore(message), "_blank");
-      }
-
       setOrderResult({
         orderId,
         total,
@@ -96,9 +88,10 @@ function Order() {
         message,
       });
       showToast("Commande envoyée ! Nous vous appellerons pour la confirmer.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Ouvre WhatsApp directement (pas un popup → fiable sur mobile)
+      window.location.href = waLinkStore(message);
     } catch (err) {
-      if (popup) popup.close();
       showToast(err.response?.data?.message || "Échec de la commande", "error");
     } finally {
       setSubmitting(false);
@@ -172,7 +165,8 @@ function Order() {
           </a>
 
           <p className="text-xs text-gray-400 mt-4">
-            Envoyez un message WhatsApp avec le récapitulatif pour confirmation immédiate.
+            WhatsApp s'est ouvert avec le récapitulatif : appuyez sur <b>Envoyer</b> pour que nous
+            recevions votre commande immédiatement.
           </p>
           <Link
             to="/shop"
