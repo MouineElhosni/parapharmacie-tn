@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import API, { productImage } from "../services/api";
 import { ORDER_STATUSES, STATUS_LABELS, statusColors } from "../utils/status";
 import { waLinkTo, STORE_NAME } from "../config";
@@ -25,7 +25,6 @@ function Admin() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
-  const [expandedOrder, setExpandedOrder] = useState(null);
 
   // Product form state
   const [editingId, setEditingId] = useState(null);
@@ -182,16 +181,6 @@ function Admin() {
       loadUsers();
     } catch (err) {
       showMessage("error", err.response?.data?.message || "Échec de la mise à jour du rôle");
-    }
-  };
-
-  const toggleOrderItems = (id) => {
-    setExpandedOrder(expandedOrder === id ? null : id);
-
-    if (expandedOrder !== id) {
-      API.get(`/orders/${id}`)
-        .then((res) => setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, items: res.data.items } : o))))
-        .catch(() => showMessage("error", "Échec du chargement des articles de commande"));
     }
   };
 
@@ -498,6 +487,7 @@ function Admin() {
                   <tr>
                     <th className="px-6 py-4">Commande</th>
                     <th className="px-6 py-4">Client</th>
+                    <th className="px-6 py-4">Articles</th>
                     <th className="px-6 py-4">Total</th>
                     <th className="px-6 py-4">Statut</th>
                     <th className="px-6 py-4">Date</th>
@@ -506,77 +496,61 @@ function Admin() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {orders.map((o) => (
-                    <Fragment key={o.id}>
-                      <tr>
-                        <td className="px-6 py-4 font-bold">#{o.id}</td>
-                        <td className="px-6 py-4">
-                          <p className="font-semibold">{o.customer_name}</p>
-                          <p className="text-sm text-gray-400">{o.customer_email}</p>
-                          <p className="text-sm text-gray-400">{o.phone}</p>
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-emerald-600">
-                          {Number(o.total).toFixed(2)} DT
-                        </td>
-                        <td className="px-6 py-4">
-                          <select
-                            value={o.status}
-                            onChange={(e) => handleStatusChange(o.id, e.target.value)}
-                            className={`text-xs font-semibold px-3 py-1 rounded-full uppercase border-0 cursor-pointer focus:outline-none ${statusColors[o.status]}`}
-                          >
-                            {ORDER_STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {STATUS_LABELS[s]}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-6 py-4 text-gray-500">
-                          {new Date(o.created_at).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={waLinkTo(
-                                o.phone,
-                                `Bonjour ${o.customer_name}, c'est ${STORE_NAME} à propos de votre commande #${o.id}.`
-                              )}
-                              target="_blank"
-                              rel="noreferrer"
-                              title="Contacter sur WhatsApp"
-                              className="bg-[#25D366] text-white px-3 py-2 rounded-lg hover:bg-[#1ebe5b] font-semibold text-sm"
-                            >
-                              💬 WhatsApp
-                            </a>
-                            <button
-                              onClick={() => toggleOrderItems(o.id)}
-                              className="bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 font-semibold text-sm"
-                            >
-                              {expandedOrder === o.id ? "Masquer les articles" : "Voir les articles"}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {expandedOrder === o.id && (
-                        <tr>
-                          <td colSpan="6" className="px-6 py-4 bg-gray-50">
-                            {o.items ? (
-                              <div className="space-y-2">
-                                {o.items.map((item, idx) => (
-                                  <div key={idx} className="flex justify-between text-sm bg-white rounded-lg px-4 py-2">
-                                    <span className="font-medium">{item.product_name || `Product #${item.product_id}`}</span>
-                                    <span className="text-gray-500">
-                                      {item.quantity} × {Number(item.price).toFixed(2)} DT
-                                    </span>
-                                  </div>
-                                ))}
+                    <tr key={o.id}>
+                      <td className="px-6 py-4 font-bold">#{o.id}</td>
+                      <td className="px-6 py-4">
+                        <p className="font-semibold">{o.customer_name}</p>
+                        <p className="text-sm text-gray-400">{o.customer_email}</p>
+                        <p className="text-sm text-gray-400">{o.phone}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        {o.items && o.items.length > 0 ? (
+                          <div className="space-y-1">
+                            {o.items.map((it) => (
+                              <div key={it.product_id} className="text-sm">
+                                <span className="font-medium">{it.product_name || `Produit #${it.product_id}`}</span>
+                                <span className="text-gray-400"> × {it.quantity}</span>
                               </div>
-                            ) : (
-                              <p className="text-gray-400 text-sm">Chargement des articles...</p>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-sm">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-emerald-600">
+                        {Number(o.total).toFixed(2)} DT
+                      </td>
+                      <td className="px-6 py-4">
+                        <select
+                          value={o.status}
+                          onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                          className={`text-xs font-semibold px-3 py-1 rounded-full uppercase border-0 cursor-pointer focus:outline-none ${statusColors[o.status]}`}
+                        >
+                          {ORDER_STATUSES.map((s) => (
+                            <option key={s} value={s}>
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500">
+                        {new Date(o.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <a
+                          href={waLinkTo(
+                            o.phone,
+                            `Bonjour ${o.customer_name}, c'est ${STORE_NAME} à propos de votre commande #${o.id}.`
+                          )}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Contacter sur WhatsApp"
+                          className="bg-[#25D366] text-white px-3 py-2 rounded-lg hover:bg-[#1ebe5b] font-semibold text-sm"
+                        >
+                          💬 WhatsApp
+                        </a>
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>

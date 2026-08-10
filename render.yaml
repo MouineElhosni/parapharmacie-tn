@@ -21,5 +21,9 @@ services:
         sync: false
       - key: DB_SSL
         value: "true"
+      - key: STORE_WHATSAPP
+        sync: false
+      - key: CALLMEBOT_APIKEY
+        sync: false
       - key: JWT_SECRET
         sync: false

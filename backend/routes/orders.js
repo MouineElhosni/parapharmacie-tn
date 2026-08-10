@@ -6,13 +6,14 @@ const verifyToken = require("../middleware/authMiddleware");
 const optionalAuth = require("../middleware/optionalAuth");
 const isAdmin = require("../middleware/adminMiddleware");
 const { promoPrice } = require("../config/promo");
+const { notifyStoreOrder } = require("../config/whatsappNotifier");
 
 const promisePool = db.promise();
 
 const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
 // GET /api/orders
-// Admin only - list all orders
+// Admin only - list all orders (with their items)
 router.get("/", verifyToken, isAdmin, async (req, res, next) => {
   try {
     const [orders] = await promisePool.query(
@@ -21,6 +22,29 @@ router.get("/", verifyToken, isAdmin, async (req, res, next) => {
        LEFT JOIN users u ON o.user_id = u.id
        ORDER BY o.created_at DESC`
     );
+
+    if (orders.length > 0) {
+      const ids = orders.map((o) => o.id);
+      const placeholders = ids.map(() => "?").join(",");
+      const [items] = await promisePool.query(
+        `SELECT oi.order_id, oi.product_id, oi.quantity, oi.price, p.name AS product_name, p.image AS product_image
+         FROM order_items oi
+         LEFT JOIN products p ON oi.product_id = p.id
+         WHERE oi.order_id IN (${placeholders})`,
+        ids
+      );
+
+      const itemsByOrder = {};
+      items.forEach((it) => {
+        if (!itemsByOrder[it.order_id]) itemsByOrder[it.order_id] = [];
+        itemsByOrder[it.order_id].push(it);
+      });
+
+      orders.forEach((o) => {
+        o.items = itemsByOrder[o.id] || [];
+      });
+    }
+
     res.json(orders);
   } catch (err) {
     next(err);
@@ -186,7 +210,7 @@ router.post(
 
         const unitPrice = promoPrice(product.price);
         total += unitPrice * quantity;
-        orderItems.push({ product_id: productId, quantity, price: unitPrice });
+        orderItems.push({ product_id: productId, quantity, price: unitPrice, name: product.name });
       }
 
       total = Math.round(total * 100) / 100;
@@ -211,6 +235,16 @@ router.post(
       }
 
       await conn.commit();
+
+      notifyStoreOrder({
+        orderId,
+        total,
+        customer_name,
+        phone,
+        address,
+        items: orderItems,
+      });
+
       res.status(201).json({
         message: "Commande créée avec succès",
         orderId,
