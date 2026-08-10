@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { waLinkStore } from "../config";
 
@@ -14,8 +14,10 @@ function Navbar() {
     setOpen(false);
   };
 
-  const linkClass = "hover:text-emerald-600 transition";
-  const mobileLinkClass = "block px-4 py-2 hover:bg-emerald-50 rounded-lg";
+  const navLinkClass = ({ isActive }) =>
+    `transition hover:text-emerald-600 ${isActive ? "text-emerald-600 font-semibold" : ""}`;
+  const mobileNavLinkClass = ({ isActive }) =>
+    `block px-4 py-2 hover:bg-emerald-50 rounded-lg ${isActive ? "bg-emerald-50 text-emerald-600 font-semibold" : ""}`;
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -32,29 +34,29 @@ function Navbar() {
 
         {/* Desktop menu */}
         <div className="hidden md:flex gap-6 text-gray-700 font-medium items-center">
-          <Link to="/" className={linkClass}>
+          <NavLink to="/" end className={navLinkClass}>
             Accueil
-          </Link>
-          <Link to="/shop" className={linkClass}>
+          </NavLink>
+          <NavLink to="/shop" className={navLinkClass}>
             Boutique
-          </Link>
-          <Link to="/about" className={linkClass}>
+          </NavLink>
+          <NavLink to="/about" className={navLinkClass}>
             À propos
-          </Link>
-          <Link to="/contact" className={linkClass}>
+          </NavLink>
+          <NavLink to="/contact" className={navLinkClass}>
             Contact
-          </Link>
+          </NavLink>
           {isAdmin && (
-            <Link to="/admin" className={linkClass}>
+            <NavLink to="/admin" className={navLinkClass}>
               Admin
-            </Link>
+            </NavLink>
           )}
 
           <a
             href={waLinkStore("Bonjour 👋")}
             target="_blank"
             rel="noreferrer"
-            className={`${linkClass} relative`}
+            className={`transition hover:text-emerald-600 relative`}
             title="Commander sur WhatsApp"
           >
             💬
@@ -70,7 +72,7 @@ function Navbar() {
               </button>
             </div>
           ) : (
-            <Link to="/login" className={linkClass}>
+            <Link to="/login" className="transition hover:text-emerald-600">
               Connexion
             </Link>
           )}
@@ -89,28 +91,28 @@ function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden bg-white border-t border-gray-100 py-2 text-gray-700 font-medium">
-          <Link to="/" className={mobileLinkClass} onClick={() => setOpen(false)}>
+          <NavLink to="/" end className={mobileNavLinkClass} onClick={() => setOpen(false)}>
             Accueil
-          </Link>
-          <Link to="/shop" className={mobileLinkClass} onClick={() => setOpen(false)}>
+          </NavLink>
+          <NavLink to="/shop" className={mobileNavLinkClass} onClick={() => setOpen(false)}>
             Boutique
-          </Link>
-          <Link to="/about" className={mobileLinkClass} onClick={() => setOpen(false)}>
+          </NavLink>
+          <NavLink to="/about" className={mobileNavLinkClass} onClick={() => setOpen(false)}>
             À propos
-          </Link>
-          <Link to="/contact" className={mobileLinkClass} onClick={() => setOpen(false)}>
+          </NavLink>
+          <NavLink to="/contact" className={mobileNavLinkClass} onClick={() => setOpen(false)}>
             Contact
-          </Link>
+          </NavLink>
           {isAdmin && (
-            <Link to="/admin" className={mobileLinkClass} onClick={() => setOpen(false)}>
+            <NavLink to="/admin" className={mobileNavLinkClass} onClick={() => setOpen(false)}>
               Admin
-            </Link>
+            </NavLink>
           )}
           <a
             href={waLinkStore("Bonjour 👋")}
             target="_blank"
             rel="noreferrer"
-            className={mobileLinkClass}
+            className="block px-4 py-2 hover:bg-emerald-50 rounded-lg"
             onClick={() => setOpen(false)}
           >
             Commander sur WhatsApp 💬
@@ -126,7 +128,7 @@ function Navbar() {
               </button>
             </div>
           ) : (
-            <Link to="/login" className={mobileLinkClass} onClick={() => setOpen(false)}>
+            <Link to="/login" className="block px-4 py-2 hover:bg-emerald-50 rounded-lg" onClick={() => setOpen(false)}>
               Connexion
             </Link>
           )}

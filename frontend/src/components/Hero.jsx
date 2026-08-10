@@ -30,18 +30,18 @@ function Hero() {
             Parapharmacie en ligne
           </span>
 
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight">
             La beauté et le bien-être,
             <br />
             à portée de main
           </h1>
 
-          <p className="mt-6 text-lg text-emerald-50">
+          <p className="mt-6 text-base sm:text-lg text-emerald-50">
             Cosmétiques, soins de la peau, nutrition et hygiène de qualité.
             Livraison rapide dans toute la Tunisie.
           </p>
 
-          <div className="mt-8 flex gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Link
               to="/shop"
               className="
@@ -51,6 +51,7 @@ function Hero() {
                 py-3
                 rounded-xl
                 font-semibold
+                text-center
                 hover:bg-emerald-50
                 transition
               "
@@ -69,6 +70,7 @@ function Hero() {
                 py-3
                 rounded-xl
                 font-semibold
+                text-center
                 hover:bg-white
                 hover:text-emerald-600
                 transition
@@ -80,15 +82,15 @@ function Hero() {
         </div>
 
         {/* Image principale */}
-        <div className="relative">
-          <div className="w-64 h-80 md:w-72 md:h-96 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/30">
+        <div className="relative mt-6 sm:mt-0">
+          <div className="w-56 h-72 sm:w-72 sm:h-96 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/30">
             <img
               src="/hero.jpg"
               alt="Parapharmacie.Tn"
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="absolute -bottom-4 -left-4 bg-white text-emerald-700 px-4 py-2 rounded-xl shadow-lg font-bold text-sm">
+          <div className="absolute -bottom-4 -left-4 bg-white text-emerald-700 px-4 py-2 rounded-xl shadow-lg font-bold text-xs sm:text-sm">
             Livraison gratuite dans toute la Tunisie 🚚
           </div>
         </div>

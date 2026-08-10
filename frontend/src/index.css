@@ -9,6 +9,22 @@ body {
   font-family: 'Inter', Arial, sans-serif;
   background: linear-gradient(135deg, #f0fdf4, #ccfbf1, #f8fafc);
   min-height: 100vh;
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(5, 150, 105, 0.2);
+  color: #065f46;
+}
+
+/* Focus visible accessible */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
 }
 
 .page-background {
