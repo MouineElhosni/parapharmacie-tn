@@ -352,7 +352,7 @@ function Admin() {
                 onChange={handleChange}
                 className={`${inputClass} h-24`}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   name="price"
                   type="number"
@@ -432,37 +432,39 @@ function Admin() {
             {products.map((p) => {
               const image = productImage(p.image);
               return (
-                <div key={p.id} className="bg-white shadow rounded-2xl p-4 flex flex-wrap items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
-                    {image ? (
-                      <img src={image} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-3xl text-gray-300">📦</span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 basis-40">
-                    <h3 className="font-bold">{p.name}</h3>
-                    <p className="text-sm text-gray-500 truncate">{p.description}</p>
-                    <p className="text-sm mt-1">
-                      <span className="text-emerald-600 font-bold">{Number(p.price).toFixed(2)} DT</span>
-                      <span className="text-gray-400 ml-3">Stock : {p.stock}</span>
-                      {p.category && (
-                        <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full ml-3">
-                          {p.category}
-                        </span>
+                <div key={p.id} className="bg-white shadow rounded-2xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+                      {image ? (
+                        <img src={image} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl text-gray-300">📦</span>
                       )}
-                    </p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold">{p.name}</h3>
+                      <p className="text-sm text-gray-500 truncate">{p.description}</p>
+                      <p className="text-sm mt-1">
+                        <span className="text-emerald-600 font-bold">{Number(p.price).toFixed(2)} DT</span>
+                        <span className="text-gray-400 ml-3">Stock : {p.stock}</span>
+                        {p.category && (
+                          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full ml-3">
+                            {p.category}
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => startEdit(p)}
-                      className="bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 font-semibold"
+                      className="flex-1 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 font-semibold"
                     >
                       Modifier
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
-                      className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 font-semibold"
+                      className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 font-semibold"
                     >
                       Supprimer
                     </button>
