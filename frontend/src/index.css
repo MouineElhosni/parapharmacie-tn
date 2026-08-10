@@ -12,6 +12,17 @@ body {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 ::selection {
   background: rgba(5, 150, 105, 0.2);
   color: #065f46;
