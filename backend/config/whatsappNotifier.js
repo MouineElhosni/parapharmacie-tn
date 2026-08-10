@@ -1,10 +1,10 @@
 async function notifyStoreOrder(order) {
-  const storePhone = (process.env.STORE_WHATSAPP || "").replace(/\D/g, "");
+  const storePhone = (process.env.STORE_WHATSAPP || "21658940189").replace(/\D/g, "");
   const apikey = process.env.CALLMEBOT_APIKEY || "";
 
   if (!storePhone || !apikey) {
     console.log(
-      "[whatsappNotifier] notification ignorée : renseigner STORE_WHATSAPP + CALLMEBOT_APIKEY dans Render"
+      "[whatsappNotifier] notification ignorée : renseigner CALLMEBOT_APIKEY dans Render"
     );
     return;
   }
