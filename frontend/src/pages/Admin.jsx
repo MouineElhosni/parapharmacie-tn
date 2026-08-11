@@ -324,7 +324,7 @@ function Admin() {
 
       {/* ===================== PRODUCTS ===================== */}
       {tab === "products" && (
-        <div>
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-5 lg:hidden">
             <button
               onClick={scrollToForm}
@@ -340,12 +340,11 @@ function Admin() {
             </button>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div
-              ref={formRef}
-              id="product-form"
-              className="bg-white shadow-xl rounded-2xl p-5 sm:p-6 h-fit lg:sticky lg:top-24 scroll-mt-24"
-            >
+          <div
+            ref={formRef}
+            id="product-form"
+            className="bg-white shadow-xl rounded-2xl p-5 sm:p-6 scroll-mt-24"
+          >
               <h2 className="text-xl font-bold mb-5">
                 {editingId ? `Modifier le produit #${editingId}` : "Ajouter un produit"}
               </h2>
@@ -441,7 +440,7 @@ function Admin() {
               </form>
             </div>
 
-          <div className="lg:col-span-2 space-y-4">
+          <div className="mt-8 space-y-4">
             <div className="flex justify-between items-center mb-2 gap-3 flex-wrap">
               <h2 className="text-xl font-bold">Tous les produits ({products.length})</h2>
               <button
@@ -502,7 +501,6 @@ function Admin() {
               );
             })}
             </div>
-          </div>
         </div>
       )}
 
