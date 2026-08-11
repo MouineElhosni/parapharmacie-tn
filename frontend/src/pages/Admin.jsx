@@ -506,94 +506,105 @@ function Admin() {
 
       {/* ===================== ORDERS ===================== */}
       {tab === "orders" && (
-        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          <div className="flex justify-between items-center px-6 py-4 border-b">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center gap-3 flex-wrap">
             <h2 className="text-xl font-bold">Toutes les commandes ({orders.length})</h2>
             <button
               onClick={loadOrders}
-              className="bg-gray-100 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200"
+              className="bg-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-gray-100"
             >
               Actualiser
             </button>
           </div>
 
           {orders.length === 0 ? (
-            <p className="text-center text-gray-400 py-12">Aucune commande.</p>
+            <p className="text-center text-gray-400 py-12 bg-white rounded-2xl shadow">
+              Aucune commande.
+            </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50 text-gray-500 text-sm">
-                  <tr>
-                    <th className="px-6 py-4">Commande</th>
-                    <th className="px-6 py-4">Client</th>
-                    <th className="px-6 py-4">Articles</th>
-                    <th className="px-6 py-4">Total</th>
-                    <th className="px-6 py-4">Statut</th>
-                    <th className="px-6 py-4">Date</th>
-                    <th className="px-6 py-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {orders.map((o) => (
-                    <tr key={o.id}>
-                      <td className="px-6 py-4 font-bold">#{o.id}</td>
-                      <td className="px-6 py-4">
-                        <p className="font-semibold">{o.customer_name}</p>
-                        <p className="text-sm text-gray-400">{o.customer_email}</p>
-                        <p className="text-sm text-gray-400">{o.phone}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        {o.items && o.items.length > 0 ? (
-                          <div className="space-y-1">
-                            {o.items.map((it) => (
-                              <div key={it.product_id} className="text-sm">
-                                <span className="font-medium">{it.product_name || `Produit #${it.product_id}`}</span>
-                                <span className="text-gray-400"> × {it.quantity}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-sm">—</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-emerald-600">
-                        {Number(o.total).toFixed(2)} DT
-                      </td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={o.status}
-                          onChange={(e) => handleStatusChange(o.id, e.target.value)}
-                          className={`text-xs font-semibold px-3 py-1 rounded-full uppercase border-0 cursor-pointer focus:outline-none ${statusColors[o.status]}`}
-                        >
-                          {ORDER_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {STATUS_LABELS[s]}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500">
-                        {new Date(o.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <a
-                          href={waLinkTo(
-                            o.phone,
-                            `Bonjour ${o.customer_name}, c'est ${STORE_NAME} à propos de votre commande #${o.id}.`
+            orders.map((o) => (
+              <div key={o.id} className="bg-white shadow rounded-2xl p-5">
+                <div className="flex flex-wrap justify-between items-center gap-3">
+                  <div>
+                    <p className="font-bold text-lg">Commande #{o.id}</p>
+                    <p className="text-sm text-gray-400">
+                      {new Date(o.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <select
+                      value={o.status}
+                      onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                      className={`text-xs font-semibold px-3 py-1.5 rounded-full uppercase border-0 cursor-pointer focus:outline-none ${statusColors[o.status]}`}
+                    >
+                      {ORDER_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {STATUS_LABELS[s]}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-emerald-600 font-bold">
+                      {Number(o.total).toFixed(2)} DT
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-sm text-gray-600">
+                  <p className="font-semibold">{o.customer_name}</p>
+                  <p className="text-gray-400">
+                    {o.customer_email} · 📞 {o.phone}
+                  </p>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {o.items && o.items.length > 0 ? (
+                    o.items.map((it) => (
+                      <div key={it.product_id} className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+                          {productImage(it.product_image) ? (
+                            <img
+                              src={productImage(it.product_image)}
+                              alt={it.product_name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>🌿</span>
                           )}
-                          target="_blank"
-                          rel="noreferrer"
-                          title="Contacter sur WhatsApp"
-                          className="bg-[#25D366] text-white px-3 py-2 rounded-lg hover:bg-[#1ebe5b] font-semibold text-sm"
-                        >
-                          💬 WhatsApp
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm break-words">
+                            {it.product_name || `Produit #${it.product_id}`}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {it.quantity} × {Number(it.price).toFixed(2)} DT
+                          </p>
+                        </div>
+                        <span className="font-bold text-sm">
+                          {(Number(it.price) * it.quantity).toFixed(2)} DT
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-400">—</p>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-3 border-t">
+                  <a
+                    href={waLinkTo(
+                      o.phone,
+                      `Bonjour ${o.customer_name}, c'est ${STORE_NAME} à propos de votre commande #${o.id}.`
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Contacter sur WhatsApp"
+                    className="bg-[#25D366] text-white px-4 py-2.5 rounded-lg hover:bg-[#1ebe5b] font-semibold text-sm inline-block"
+                  >
+                    💬 WhatsApp
+                  </a>
+                </div>
+              </div>
+            ))
           )}
         </div>
       )}
