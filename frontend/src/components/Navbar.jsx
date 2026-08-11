@@ -64,8 +64,11 @@ function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-4">
-              <Link to="/account" className="text-emerald-600">
-                {user.name}
+              <Link
+                to="/account"
+                className="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-700 transition"
+              >
+                Profil
               </Link>
               <button onClick={handleLogout} className="hover:text-red-600 transition">
                 Déconnexion
@@ -119,11 +122,18 @@ function Navbar() {
           </a>
 
           {user ? (
-            <div className="px-4 py-2">
-              <Link to="/account" className="text-emerald-600" onClick={() => setOpen(false)}>
-                Mon compte
+            <div className="px-4 py-3 space-y-2">
+              <Link
+                to="/account"
+                onClick={() => setOpen(false)}
+                className="block text-center bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700"
+              >
+                Profil
               </Link>
-              <button onClick={handleLogout} className="block mt-2 text-red-600">
+              <button
+                onClick={handleLogout}
+                className="w-full text-center text-red-600 font-semibold py-3 rounded-xl bg-red-50 hover:bg-red-100"
+              >
                 Déconnexion
               </button>
             </div>
