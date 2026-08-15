@@ -5,8 +5,7 @@ import usePageTitle from "../hooks/usePageTitle";
 
 function Contact() {
   const { showToast } = useToast();
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-  const [sending, setSending] = useState(false);
+  const [form, setForm] = useState({ name: "", phone: "", subject: "", message: "" });
 
   usePageTitle("Contact");
 
@@ -14,12 +13,10 @@ function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSending(true);
-    setTimeout(() => {
-      setSending(false);
-      showToast("Merci ! Votre message a bien été envoyé.");
-      setForm({ name: "", email: "", subject: "", message: "" });
-    }, 800);
+    const text = `Bonjour 👋, je suis ${form.name}.\nTéléphone : ${form.phone}\nSujet : ${form.subject}\n\n${form.message}`;
+    window.open(waLinkStore(text), "_blank");
+    showToast("Merci ! Votre message s'ouvre dans WhatsApp.");
+    setForm({ name: "", phone: "", subject: "", message: "" });
   };
 
   const inputClass =
@@ -43,10 +40,10 @@ function Contact() {
               required
             />
             <input
-              type="email"
-              name="email"
-              placeholder="Votre email"
-              value={form.email}
+              type="tel"
+              name="phone"
+              placeholder="Votre numéro de téléphone"
+              value={form.phone}
               onChange={handleChange}
               className={inputClass}
               required
@@ -70,10 +67,9 @@ function Contact() {
             />
             <button
               type="submit"
-              disabled={sending}
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
             >
-              {sending ? "Envoi..." : "Envoyer"}
+              Envoyer via WhatsApp
             </button>
           </form>
         </div>
