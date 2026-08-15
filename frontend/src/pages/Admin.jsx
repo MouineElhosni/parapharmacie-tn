@@ -25,6 +25,7 @@ function Admin() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [subscribers, setSubscribers] = useState([]);
 
   // Product form state
   const [editingId, setEditingId] = useState(null);
@@ -67,11 +68,27 @@ function Admin() {
       .catch(() => showMessage("error", "Échec du chargement des utilisateurs"));
   };
 
+  const loadSubscribers = () => {
+    API.get("/subscribers")
+      .then((res) => setSubscribers(res.data))
+      .catch(() => showMessage("error", "Échec du chargement des abonnés"));
+  };
+
+  const handleRemoveSubscriber = (id, contact) => {
+    API.delete(`/subscribers/${id}`)
+      .then(() => {
+        showMessage("success", `Abonné ${contact} supprimé`);
+        loadSubscribers();
+      })
+      .catch(() => showMessage("error", "Échec de la suppression"));
+  };
+
   useEffect(() => {
     if (tab === "dashboard") loadStats();
     if (tab === "products") loadProducts();
     if (tab === "orders") loadOrders();
     if (tab === "users") loadUsers();
+    if (tab === "subscribers") loadSubscribers();
   }, [tab]);
 
   const handleChange = (e) => {
@@ -194,6 +211,7 @@ function Admin() {
     { id: "products", label: "Produits" },
     { id: "orders", label: "Commandes" },
     { id: "users", label: "Utilisateurs" },
+    { id: "subscribers", label: "Abonnés" },
   ];
 
   const inputClass =
@@ -660,6 +678,92 @@ function Admin() {
                         }
                       >
                         {u.role === "admin" ? "Retirer admin" : "Nommer admin"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== SUBSCRIBERS ===================== */}
+      {tab === "subscribers" && (
+        <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
+          <div className="flex justify-between items-center px-6 py-4 border-b">
+            <div>
+              <h2 className="text-xl font-bold">Abonnés ({subscribers.length})</h2>
+              <p className="text-sm text-gray-400">
+                Reçoivent les notifications des nouveaux produits (WhatsApp + email)
+              </p>
+            </div>
+            <button
+              onClick={loadSubscribers}
+              className="bg-gray-100 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200"
+            >
+              Actualiser
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-500 text-sm">
+                <tr>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">Téléphone</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4">Source</th>
+                  <th className="px-6 py-4">Inscrit le</th>
+                  <th className="px-6 py-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {subscribers.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-8 text-center text-gray-400">
+                      Aucun abonné pour le moment.
+                    </td>
+                  </tr>
+                )}
+                {subscribers.map((s) => (
+                  <tr key={s.id}>
+                    <td className="px-6 py-4 font-bold">#{s.id}</td>
+                    <td className="px-6 py-4 font-semibold">
+                      {s.phone ? (
+                        <a
+                          href={waLinkTo(s.phone, `Bonjour ${STORE_NAME} 👋`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-emerald-600 hover:underline"
+                        >
+                          {s.phone}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">{s.email || "—"}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`text-xs font-semibold px-3 py-1 rounded-full uppercase ${
+                          s.source === "order"
+                            ? "bg-amber-50 text-amber-600"
+                            : "bg-emerald-50 text-emerald-600"
+                        }`}
+                      >
+                        {s.source}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500">
+                      {new Date(s.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleRemoveSubscriber(s.id, s.phone || s.email)}
+                        className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 font-semibold text-sm"
+                      >
+                        Supprimer
                       </button>
                     </td>
                   </tr>

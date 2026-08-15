@@ -13,6 +13,7 @@ const userRoutes = require("./routes/userRoutes");
 const ordersRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/adminRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const subscriberRoutes = require("./routes/subscriberRoutes");
 const initDb = require("./scripts/initDb");
 
 const app = express();
@@ -60,6 +61,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/subscribers", subscriberRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

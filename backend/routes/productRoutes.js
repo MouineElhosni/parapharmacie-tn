@@ -10,6 +10,7 @@ const upload = require("../middleware/upload");
 
 const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
 const { isPromoActive, promoPrice, promoInfo } = require("../config/promo");
+const { notifySubscribersNewProduct } = require("../config/notifier");
 
 const RATING_SELECT = `
   (SELECT COALESCE(AVG(rating), 0) FROM reviews r WHERE r.product_id = products.id) AS avg_rating,
@@ -244,6 +245,14 @@ router.post(
           category || null,
         ]
       );
+
+      // Notifier les abonnés du nouveau produit (WhatsApp + email)
+      notifySubscribersNewProduct({
+        id: result.rows[0].id,
+        name: name.trim(),
+        price: Number(price),
+      });
+
       res.status(201).json({
         message: "Produit créé avec succès",
         productId: result.rows[0].id,

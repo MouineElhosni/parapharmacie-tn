@@ -7,6 +7,7 @@ const optionalAuth = require("../middleware/optionalAuth");
 const isAdmin = require("../middleware/adminMiddleware");
 const { promoPrice } = require("../config/promo");
 const { notifyStoreOrder } = require("../config/whatsappNotifier");
+const { upsertSubscriber } = require("../config/subscriber");
 
 const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
@@ -256,6 +257,25 @@ router.post(
 
       await client.query("COMMIT");
 
+      // Fidélité : cadeau offert à chaque 5e commande du même client (par téléphone)
+      let ordersCount = 0;
+      let giftEarned = false;
+      try {
+        const countResult = await db.query(
+          "SELECT COUNT(*)::int AS cnt FROM orders WHERE phone = $1 AND status != 'cancelled'",
+          [phone]
+        );
+        ordersCount = Number(countResult.rows[0].cnt);
+        giftEarned = ordersCount > 0 && ordersCount % 5 === 0;
+      } catch (err) {
+        console.error("[orders] erreur calcul fidélité :", err.message);
+      }
+
+      // Inscription automatique aux notifications nouveautés
+      upsertSubscriber({ phone, email: customer_email, source: "order" }).catch((err) =>
+        console.error("[orders] erreur abonnement :", err.message)
+      );
+
       notifyStoreOrder({
         orderId,
         total,
@@ -263,12 +283,19 @@ router.post(
         phone,
         address,
         items: orderItems,
+        ordersCount,
+        giftEarned,
       });
 
       res.status(201).json({
         message: "Commande créée avec succès",
         orderId,
         total,
+        loyalty: {
+          ordersCount,
+          giftEarned,
+          nextGiftIn: giftEarned ? 0 : 5 - (ordersCount % 5),
+        },
       });
     } catch (err) {
       await client.query("ROLLBACK");

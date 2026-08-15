@@ -17,16 +17,19 @@ async function initDb() {
 
   const { rows } = await pool.query("SELECT to_regclass('public.products') AS tbl");
 
+  // Le schéma est idempotent (IF NOT EXISTS) : on l'applique toujours
+  // pour créer les nouvelles tables (ex: subscribers) sur une base existante.
+  await pool.query(schemaOnly);
+
   if (rows[0].tbl) {
     const count = await pool.query("SELECT COUNT(*)::int AS count FROM products");
     if (count.rows[0].count === 0) {
       await pool.query(readSeed());
       console.log("[initDb] Tables existantes mais vides : données initiales appliquées");
     } else {
-      console.log(`[initDb] Base existante (${count.rows[0].count} produits) : rien à faire`);
+      console.log(`[initDb] Schéma vérifié, base existante (${count.rows[0].count} produits)`);
     }
   } else {
-    await pool.query(schemaOnly);
     await pool.query(readSeed());
     console.log("[initDb] Base neuve : schéma + données initiales appliqués");
   }

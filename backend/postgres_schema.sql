@@ -110,6 +110,18 @@ CREATE TABLE IF NOT EXISTS wishlist (
 );
 
 -- ------------------------------------------------------------
+-- Subscribers (newsletter / notifications nouveautés)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS subscribers (
+  id SERIAL PRIMARY KEY,
+  phone VARCHAR(30) UNIQUE DEFAULT NULL,
+  email VARCHAR(150) UNIQUE DEFAULT NULL,
+  source VARCHAR(30) NOT NULL DEFAULT 'newsletter',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_subscriber_contact CHECK (phone IS NOT NULL OR email IS NOT NULL)
+);
+
+-- ------------------------------------------------------------
 -- Seed data
 -- ------------------------------------------------------------
 

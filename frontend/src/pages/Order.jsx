@@ -68,6 +68,13 @@ function Order() {
 
       const orderId = res.data.orderId;
       const total = res.data.total;
+      const loyalty = res.data.loyalty;
+      const giftLines =
+        loyalty?.giftEarned
+          ? [``, `🎁 C'est votre ${loyalty.ordersCount}e commande : un cadeau gratuit vous attend avec cette commande ! Merci pour votre fidélité 💚`]
+          : loyalty
+            ? [``, `🎁 Plus que ${loyalty.nextGiftIn} commande(s) avant votre cadeau gratuit !`]
+            : [];
       const message = [
         `🛍️ NOUVELLE COMMANDE #${orderId}`,
         `• Produit : ${product.name} × ${Number(form.quantity)}`,
@@ -77,6 +84,7 @@ function Order() {
         `• Adresse : ${form.address}${form.city ? `, ${form.city}` : ""}`,
         ``,
         `Merci de confirmer et de planifier la livraison 🙏`,
+        ...giftLines,
       ].join("\n");
 
       setOrderResult({
@@ -86,6 +94,7 @@ function Order() {
         address: form.address,
         city: form.city,
         message,
+        loyalty,
       });
       showToast("Commande envoyée ! Nous vous appellerons pour la confirmer.");
 
@@ -126,6 +135,11 @@ function Order() {
 
   // ---- Success screen ----
   if (orderResult) {
+    const loyalty = orderResult.loyalty || {};
+    const giftEarned = Boolean(loyalty.giftEarned);
+    const nextGiftIn = Number(loyalty.nextGiftIn) || 0;
+    const ordersCount = Number(loyalty.ordersCount) || 1;
+    const progressToGift = ((ordersCount % 5) / 5) * 100;
     const message =
       orderResult.message ||
       [
@@ -146,6 +160,9 @@ function Order() {
         <div className="bg-white rounded-3xl shadow-xl p-10">
           <p className="text-7xl mb-4">✅</p>
           <h1 className="text-3xl font-bold text-gray-800">Commande envoyée !</h1>
+          <p className="text-emerald-600 font-semibold mt-2">
+            Merci pour votre confiance, {form.customer_name || "cher client"} ! 🙏
+          </p>
           <p className="text-gray-500 mt-3">
             Commande <span className="font-bold text-emerald-600">#{orderResult.orderId}</span> —{" "}
             {orderResult.total} DT
@@ -154,6 +171,36 @@ function Order() {
             Nous vous appellerons au <span className="font-bold">{form.phone}</span> pour vérifier et
             confirmer votre commande avant la livraison.
           </p>
+
+          {giftEarned && (
+            <div className="mt-6 bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-2 border-amber-300 rounded-2xl p-4">
+              <p className="text-3xl mb-1">🎁</p>
+              <p className="font-bold text-amber-800">Félicitations ! C'est votre {ordersCount}e commande.</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Un <b>cadeau gratuit</b> vous attend avec cette commande. On vous le remettra à la
+                livraison 💚
+              </p>
+            </div>
+          )}
+
+          {!giftEarned && loyalty.ordersCount > 0 && (
+            <div className="mt-6 bg-emerald-50 rounded-2xl p-4 text-left">
+              <p className="text-sm font-semibold text-emerald-700">
+                🎁 Programme fidélité : plus que{" "}
+                <span className="font-bold">{nextGiftIn}</span> commande{nextGiftIn > 1 ? "s" : ""}{" "}
+                avant votre cadeau gratuit !
+              </p>
+              <div className="mt-2 h-2.5 bg-emerald-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-700"
+                  style={{ width: `${progressToGift}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1.5">
+                {ordersCount % 5}/5 commandes — cadeau offert à chaque 5e commande
+              </p>
+            </div>
+          )}
 
           <a
             href={waLinkStore(message)}
