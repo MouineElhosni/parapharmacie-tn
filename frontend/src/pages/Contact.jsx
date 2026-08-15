@@ -85,7 +85,6 @@ function Contact() {
               <p>📍 Béja, Béja, Tunisie</p>
               <p>📞 <a href="tel:+21658940189" className="hover:text-emerald-600">+216 58 940 189</a></p>
               <p>💬 <a href={waLinkStore("Bonjour 👋")} target="_blank" rel="noreferrer" className="hover:text-emerald-600">WhatsApp : +216 58 940 189</a></p>
-              <p>✉️ contact@parapharmacie.tn</p>
               <a
                 href="https://www.facebook.com/share/1EDxg2Cedo/"
                 target="_blank"

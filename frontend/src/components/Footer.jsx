@@ -71,7 +71,6 @@ function Footer() {
           </form>
 
           <div className="mt-5 text-emerald-200/70 text-sm">
-            <p>Email : contact@parapharmacie.tn</p>
             <p>Tél : +216 58 940 189</p>
             <p>Béja, Tunisie</p>
             <a
