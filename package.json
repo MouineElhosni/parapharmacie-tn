@@ -1,7 +1,7 @@
 {
   "name": "parapharmacie-tn",
   "version": "1.0.0",
-  "description": "Parapharmacie.Tn - boutique en ligne (Node.js + React + MySQL)",
+  "description": "Parapharmacie.Tn - boutique en ligne (Node.js + React + PostgreSQL)",
   "scripts": {
     "build": "npm ci --include=dev --prefix frontend && npm run build --prefix frontend && npm ci --omit=dev --prefix backend",
     "start": "node backend/server.js"

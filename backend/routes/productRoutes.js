@@ -8,7 +8,6 @@ const verifyToken = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");
 const upload = require("../middleware/upload");
 
-const promisePool = db.promise();
 const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
 const { isPromoActive, promoPrice, promoInfo } = require("../config/promo");
 
@@ -46,36 +45,40 @@ router.get("/", async (req, res, next) => {
     const params = [];
 
     if (search) {
-      where += " AND (products.name LIKE ? OR products.description LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
+      where += ` AND (products.name LIKE $${params.length - 1} OR products.description LIKE $${params.length})`;
     }
 
     if (category) {
-      where += " AND products.category = ?";
       params.push(category);
+      where += ` AND products.category = $${params.length}`;
     }
 
     const orderBy = SORT_MAP[sort] || SORT_MAP.newest;
 
-    const [[{ total }]] = await promisePool.query(
-      `SELECT COUNT(*) AS total FROM products ${where}`,
-      params
-    );
+    const countResult = await db.query(`SELECT COUNT(*) AS total FROM products ${where}`, params);
+    const total = Number(countResult.rows[0].total);
 
-    const [rows] = await promisePool.query(
+    params.push(limit, offset);
+    const limitIdx = params.length - 1;
+    const result = await db.query(
       `SELECT products.*, ${RATING_SELECT}
        FROM products
        ${where}
        ORDER BY ${orderBy}
-       LIMIT ? OFFSET ?`,
-      [...params, limit, offset]
+       LIMIT $${limitIdx} OFFSET $${limitIdx + 1}`,
+      params
     );
 
+    const rows = result.rows;
     const promoActive = isPromoActive();
     rows.forEach((r) => {
+      r.price = Number(r.price);
       r.promo_active = promoActive;
       r.sale_price = promoActive ? promoPrice(r.price) : null;
       r.original_price = Number(r.price);
+      r.avg_rating = Number(r.avg_rating);
+      r.review_count = Number(r.review_count);
     });
 
     res.json({
@@ -92,28 +95,30 @@ router.get("/", async (req, res, next) => {
 
 // GET /api/products/categories
 // Public - list distinct product categories
-router.get("/categories", (req, res, next) => {
-  const sql =
-    "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category";
-  db.query(sql, (err, result) => {
-    if (err) return next(err);
-    res.json(result.map((row) => row.category));
-  });
+router.get("/categories", async (req, res, next) => {
+  try {
+    const sql =
+      "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != '' ORDER BY category";
+    const result = await db.query(sql);
+    res.json(result.rows.map((row) => row.category));
+  } catch (err) {
+    next(err);
+  }
 });
 
 // GET /api/products/:id/reviews
 // Public - list reviews for a product
 router.get("/:id/reviews", async (req, res, next) => {
   try {
-    const [rows] = await promisePool.query(
+    const result = await db.query(
       `SELECT r.id, r.rating, r.comment, r.created_at, u.name AS user_name
        FROM reviews r
        JOIN users u ON r.user_id = u.id
-       WHERE r.product_id = ?
+       WHERE r.product_id = $1
        ORDER BY r.created_at DESC`,
       [req.params.id]
     );
-    res.json(rows);
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
@@ -140,24 +145,22 @@ router.post(
     const { rating, comment } = req.body;
 
     try {
-      const [[product]] = await promisePool.query("SELECT id FROM products WHERE id = ?", [
-        productId,
-      ]);
-      if (!product) {
+      const productResult = await db.query("SELECT id FROM products WHERE id = $1", [productId]);
+      if (productResult.rows.length === 0) {
         return res.status(404).json({ message: "Produit introuvable" });
       }
 
-      const [existing] = await promisePool.query(
-        "SELECT id FROM reviews WHERE product_id = ? AND user_id = ?",
+      const existingResult = await db.query(
+        "SELECT id FROM reviews WHERE product_id = $1 AND user_id = $2",
         [productId, req.user.id]
       );
 
-      if (existing.length > 0) {
+      if (existingResult.rows.length > 0) {
         return res.status(400).json({ message: "Vous avez déjà donné votre avis sur ce produit" });
       }
 
-      await promisePool.query(
-        "INSERT INTO reviews (product_id, user_id, rating, comment) VALUES (?, ?, ?, ?)",
+      await db.query(
+        "INSERT INTO reviews (product_id, user_id, rating, comment) VALUES ($1, $2, $3, $4)",
         [productId, req.user.id, rating, comment || null]
       );
 
@@ -178,18 +181,22 @@ router.get("/promo", (req, res) => {
 // Public - single product (with rating)
 router.get("/:id", async (req, res, next) => {
   try {
-    const [rows] = await promisePool.query(
-      `SELECT products.*, ${RATING_SELECT} FROM products WHERE products.id = ?`,
+    const result = await db.query(
+      `SELECT products.*, ${RATING_SELECT} FROM products WHERE products.id = $1`,
       [req.params.id]
     );
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: "Produit introuvable" });
     }
+    const row = result.rows[0];
     const promoActive = isPromoActive();
-    rows[0].promo_active = promoActive;
-    rows[0].sale_price = promoActive ? promoPrice(rows[0].price) : null;
-    rows[0].original_price = Number(rows[0].price);
-    res.json(rows[0]);
+    row.price = Number(row.price);
+    row.avg_rating = Number(row.avg_rating);
+    row.review_count = Number(row.review_count);
+    row.promo_active = promoActive;
+    row.sale_price = promoActive ? promoPrice(row.price) : null;
+    row.original_price = Number(row.price);
+    res.json(row);
   } catch (err) {
     next(err);
   }
@@ -224,9 +231,10 @@ router.post(
     const { name, description, price, stock, image, category } = req.body;
 
     try {
-      const [result] = await promisePool.query(
+      const result = await db.query(
         `INSERT INTO products (name, description, price, stock, image, category)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id`,
         [
           name.trim(),
           description || null,
@@ -238,7 +246,7 @@ router.post(
       );
       res.status(201).json({
         message: "Produit créé avec succès",
-        productId: result.insertId,
+        productId: result.rows[0].id,
       });
     } catch (err) {
       next(err);
@@ -266,22 +274,22 @@ router.put(
     const { name, description, price, stock, image, category } = req.body;
 
     try {
-      const [currentRows] = await promisePool.query("SELECT image FROM products WHERE id = ?", [
+      const currentResult = await db.query("SELECT image FROM products WHERE id = $1", [
         req.params.id,
       ]);
-      if (currentRows.length === 0) {
+      if (currentResult.rows.length === 0) {
         return res.status(404).json({ message: "Produit introuvable" });
       }
 
       // Clean up the old image file when it is replaced
-      if (image && image !== currentRows[0].image) {
-        unlinkIfLocal(currentRows[0].image);
+      if (image && image !== currentResult.rows[0].image) {
+        unlinkIfLocal(currentResult.rows[0].image);
       }
 
-      const [result] = await promisePool.query(
+      const result = await db.query(
         `UPDATE products
-         SET name = ?, description = ?, price = ?, stock = ?, image = ?, category = ?
-         WHERE id = ?`,
+         SET name = $1, description = $2, price = $3, stock = $4, image = $5, category = $6
+         WHERE id = $7`,
         [
           name.trim(),
           description || null,
@@ -293,7 +301,7 @@ router.put(
         ]
       );
 
-      if (result.affectedRows === 0) {
+      if (result.rowCount === 0) {
         return res.status(404).json({ message: "Produit introuvable" });
       }
 
@@ -308,15 +316,15 @@ router.put(
 // Admin only - delete product (removes image file too)
 router.delete("/:id", verifyToken, isAdmin, async (req, res, next) => {
   try {
-    const [currentRows] = await promisePool.query("SELECT image FROM products WHERE id = ?", [
+    const currentResult = await db.query("SELECT image FROM products WHERE id = $1", [
       req.params.id,
     ]);
-    if (currentRows.length === 0) {
+    if (currentResult.rows.length === 0) {
       return res.status(404).json({ message: "Produit introuvable" });
     }
 
-    await promisePool.query("DELETE FROM products WHERE id = ?", [req.params.id]);
-    unlinkIfLocal(currentRows[0].image);
+    await db.query("DELETE FROM products WHERE id = $1", [req.params.id]);
+    unlinkIfLocal(currentResult.rows[0].image);
 
     res.json({ message: "Produit supprimé avec succès" });
   } catch (err) {

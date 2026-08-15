@@ -8,25 +8,24 @@ const isAdmin = require("../middleware/adminMiddleware");
 const { promoPrice } = require("../config/promo");
 const { notifyStoreOrder } = require("../config/whatsappNotifier");
 
-const promisePool = db.promise();
-
 const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
 // GET /api/orders
 // Admin only - list all orders (with their items)
 router.get("/", verifyToken, isAdmin, async (req, res, next) => {
   try {
-    const [orders] = await promisePool.query(
+    const ordersResult = await db.query(
       `SELECT o.*, u.name AS user_name
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
        ORDER BY o.created_at DESC`
     );
 
+    const orders = ordersResult.rows;
     if (orders.length > 0) {
       const ids = orders.map((o) => o.id);
-      const placeholders = ids.map(() => "?").join(",");
-      const [items] = await promisePool.query(
+      const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+      const itemsResult = await db.query(
         `SELECT oi.order_id, oi.product_id, oi.quantity, oi.price, p.name AS product_name, p.image AS product_image
          FROM order_items oi
          LEFT JOIN products p ON oi.product_id = p.id
@@ -35,13 +34,18 @@ router.get("/", verifyToken, isAdmin, async (req, res, next) => {
       );
 
       const itemsByOrder = {};
-      items.forEach((it) => {
+      itemsResult.rows.forEach((it) => {
         if (!itemsByOrder[it.order_id]) itemsByOrder[it.order_id] = [];
         itemsByOrder[it.order_id].push(it);
       });
 
       orders.forEach((o) => {
+        o.total = Number(o.total);
+        o.delivery_fees = Number(o.delivery_fees);
         o.items = itemsByOrder[o.id] || [];
+        o.items.forEach((it) => {
+          it.price = Number(it.price);
+        });
       });
     }
 
@@ -55,15 +59,16 @@ router.get("/", verifyToken, isAdmin, async (req, res, next) => {
 // Logged-in user - list their own orders (with items)
 router.get("/my", verifyToken, async (req, res, next) => {
   try {
-    const [orders] = await promisePool.query(
-      `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+    const ordersResult = await db.query(
+      `SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
       [req.user.id]
     );
 
+    const orders = ordersResult.rows;
     if (orders.length > 0) {
       const ids = orders.map((o) => o.id);
-      const placeholders = ids.map(() => "?").join(",");
-      const [items] = await promisePool.query(
+      const placeholders = ids.map((_, i) => `$${i + 1}`).join(",");
+      const itemsResult = await db.query(
         `SELECT oi.order_id, oi.product_id, oi.quantity, oi.price, p.name AS product_name, p.image AS product_image
          FROM order_items oi
          LEFT JOIN products p ON oi.product_id = p.id
@@ -72,13 +77,18 @@ router.get("/my", verifyToken, async (req, res, next) => {
       );
 
       const itemsByOrder = {};
-      items.forEach((it) => {
+      itemsResult.rows.forEach((it) => {
         if (!itemsByOrder[it.order_id]) itemsByOrder[it.order_id] = [];
         itemsByOrder[it.order_id].push(it);
       });
 
       orders.forEach((o) => {
+        o.total = Number(o.total);
+        o.delivery_fees = Number(o.delivery_fees);
         o.items = itemsByOrder[o.id] || [];
+        o.items.forEach((it) => {
+          it.price = Number(it.price);
+        });
       });
     }
 
@@ -92,31 +102,39 @@ router.get("/my", verifyToken, async (req, res, next) => {
 // Admin (any order) or the owner of the order - order with its items
 router.get("/:id", verifyToken, async (req, res, next) => {
   try {
-    const [order] = await promisePool.query(
+    const orderResult = await db.query(
       `SELECT o.*, u.name AS user_name
        FROM orders o
        LEFT JOIN users u ON o.user_id = u.id
-       WHERE o.id = ?`,
+       WHERE o.id = $1`,
       [req.params.id]
     );
 
-    if (order.length === 0) {
+    if (orderResult.rows.length === 0) {
       return res.status(404).json({ message: "Commande introuvable" });
     }
 
-    if (req.user.role !== "admin" && Number(order[0].user_id) !== Number(req.user.id)) {
+    const order = orderResult.rows[0];
+    if (req.user.role !== "admin" && Number(order.user_id) !== Number(req.user.id)) {
       return res.status(403).json({ message: "Accès refusé" });
     }
 
-    const [items] = await promisePool.query(
+    const itemsResult = await db.query(
       `SELECT oi.product_id, oi.quantity, oi.price, p.name AS product_name, p.image AS product_image
        FROM order_items oi
        LEFT JOIN products p ON oi.product_id = p.id
-       WHERE oi.order_id = ?`,
+       WHERE oi.order_id = $1`,
       [req.params.id]
     );
 
-    res.json({ ...order[0], items });
+    order.total = Number(order.total);
+    order.delivery_fees = Number(order.delivery_fees);
+    const items = itemsResult.rows;
+    items.forEach((it) => {
+      it.price = Number(it.price);
+    });
+
+    res.json({ ...order, items });
   } catch (err) {
     next(err);
   }
@@ -134,11 +152,11 @@ router.put("/:id/status", verifyToken, isAdmin, async (req, res, next) => {
   }
 
   try {
-    const [result] = await promisePool.query("UPDATE orders SET status = ? WHERE id = ?", [
+    const result = await db.query("UPDATE orders SET status = $1 WHERE id = $2", [
       status,
       req.params.id,
     ]);
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ message: "Commande introuvable" });
     }
     res.json({ message: "Statut de la commande mis à jour", status });
@@ -173,10 +191,10 @@ router.post(
 
     const { customer_name, customer_email, address, phone, payment_method, items } = req.body;
     const userId = req.user ? req.user.id : null;
-    const conn = await promisePool.getConnection();
+    const client = await db.connect();
 
     try {
-      await conn.beginTransaction();
+      await client.query("BEGIN");
 
       const orderItems = [];
       let total = 0;
@@ -186,23 +204,24 @@ router.post(
         const quantity = Number(item.quantity);
 
         if (!productId || !quantity || quantity <= 0 || !Number.isInteger(quantity)) {
-          await conn.rollback();
+          await client.query("ROLLBACK");
           return res.status(400).json({ message: "Article invalide dans la commande" });
         }
 
-        const [rows] = await conn.query("SELECT id, name, price, stock FROM products WHERE id = ?", [
-          productId,
-        ]);
+        const productResult = await client.query(
+          "SELECT id, name, price, stock FROM products WHERE id = $1 FOR UPDATE",
+          [productId]
+        );
 
-        if (rows.length === 0) {
-          await conn.rollback();
+        if (productResult.rows.length === 0) {
+          await client.query("ROLLBACK");
           return res.status(400).json({ message: `Produit #${productId} introuvable` });
         }
 
-        const product = rows[0];
+        const product = productResult.rows[0];
 
         if (Number(product.stock) < quantity) {
-          await conn.rollback();
+          await client.query("ROLLBACK");
           return res.status(400).json({
             message: `Stock insuffisant pour « ${product.name} » (${product.stock} restant)`,
           });
@@ -215,26 +234,27 @@ router.post(
 
       total = Math.round(total * 100) / 100;
 
-      const [orderRes] = await conn.query(
+      const orderRes = await client.query(
         `INSERT INTO orders (user_id, customer_name, customer_email, address, phone, payment_method, total)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id`,
         [userId, customer_name, customer_email, address, phone, payment_method || "cod", total]
       );
 
-      const orderId = orderRes.insertId;
+      const orderId = orderRes.rows[0].id;
 
       for (const oi of orderItems) {
-        await conn.query(
-          "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
+        await client.query(
+          "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)",
           [orderId, oi.product_id, oi.quantity, oi.price]
         );
-        await conn.query("UPDATE products SET stock = stock - ? WHERE id = ?", [
+        await client.query("UPDATE products SET stock = stock - $1 WHERE id = $2", [
           oi.quantity,
           oi.product_id,
         ]);
       }
 
-      await conn.commit();
+      await client.query("COMMIT");
 
       notifyStoreOrder({
         orderId,
@@ -251,10 +271,10 @@ router.post(
         total,
       });
     } catch (err) {
-      await conn.rollback();
+      await client.query("ROLLBACK");
       next(err);
     } finally {
-      conn.release();
+      client.release();
     }
   }
 );

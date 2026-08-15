@@ -55,6 +55,18 @@ textarea:focus-visible {
     #f8fafc;
 }
 
+/* Toast animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Clamp multi-line text */
 .line-clamp-2 {
   display: -webkit-box;

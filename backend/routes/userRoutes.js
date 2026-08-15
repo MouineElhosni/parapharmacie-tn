@@ -6,20 +6,18 @@ const db = require("../config/db");
 const verifyToken = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");
 
-const promisePool = db.promise();
-
 // GET /api/users/profile
 // Logged-in user - return full profile
 router.get("/profile", verifyToken, async (req, res, next) => {
   try {
-    const [result] = await promisePool.query(
-      "SELECT id, name, email, role, created_at FROM users WHERE id = ?",
+    const result = await db.query(
+      "SELECT id, name, email, role, created_at FROM users WHERE id = $1",
       [req.user.id]
     );
-    if (result.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
-    res.json(result[0]);
+    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }
@@ -43,15 +41,15 @@ router.put(
     const { name, email } = req.body;
 
     try {
-      const [existing] = await promisePool.query(
-        "SELECT id FROM users WHERE email = ? AND id != ?",
+      const existingResult = await db.query(
+        "SELECT id FROM users WHERE email = $1 AND id != $2",
         [email, req.user.id]
       );
-      if (existing.length > 0) {
+      if (existingResult.rows.length > 0) {
         return res.status(400).json({ message: "Cet email est déjà utilisé" });
       }
 
-      await promisePool.query("UPDATE users SET name = ?, email = ? WHERE id = ?", [
+      await db.query("UPDATE users SET name = $1, email = $2 WHERE id = $3", [
         name.trim(),
         email,
         req.user.id,
@@ -87,20 +85,18 @@ router.put(
     const { current_password, new_password } = req.body;
 
     try {
-      const [result] = await promisePool.query("SELECT password FROM users WHERE id = ?", [
-        req.user.id,
-      ]);
-      if (result.length === 0) {
+      const result = await db.query("SELECT password FROM users WHERE id = $1", [req.user.id]);
+      if (result.rows.length === 0) {
         return res.status(404).json({ message: "Utilisateur introuvable" });
       }
 
-      const isMatch = await bcrypt.compare(current_password, result[0].password);
+      const isMatch = await bcrypt.compare(current_password, result.rows[0].password);
       if (!isMatch) {
         return res.status(400).json({ message: "Le mot de passe actuel est incorrect" });
       }
 
       const hash = await bcrypt.hash(new_password, 10);
-      await promisePool.query("UPDATE users SET password = ? WHERE id = ?", [hash, req.user.id]);
+      await db.query("UPDATE users SET password = $1 WHERE id = $2", [hash, req.user.id]);
 
       res.json({ message: "Mot de passe modifié avec succès" });
     } catch (err) {
@@ -113,10 +109,10 @@ router.put(
 // Admin only - list all users
 router.get("/", verifyToken, isAdmin, async (req, res, next) => {
   try {
-    const [users] = await promisePool.query(
+    const result = await db.query(
       "SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC"
     );
-    res.json(users);
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
@@ -138,11 +134,8 @@ router.put("/:id/role", verifyToken, isAdmin, async (req, res, next) => {
   }
 
   try {
-    const [result] = await promisePool.query("UPDATE users SET role = ? WHERE id = ?", [
-      role,
-      targetId,
-    ]);
-    if (result.affectedRows === 0) {
+    const result = await db.query("UPDATE users SET role = $1 WHERE id = $2", [role, targetId]);
+    if (result.rowCount === 0) {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
     res.json({ message: "Rôle de l'utilisateur mis à jour", role });

@@ -4,22 +4,24 @@ const router = express.Router();
 const db = require("../config/db");
 const verifyToken = require("../middleware/authMiddleware");
 
-const promisePool = db.promise();
-
 // GET /api/wishlist
 // Logged-in user - list wishlist items with product details
 router.get("/", verifyToken, async (req, res, next) => {
   try {
-    const [rows] = await promisePool.query(
+    const result = await db.query(
       `SELECT w.product_id, w.created_at, p.name, p.price, p.image, p.category,
               (SELECT COALESCE(AVG(rating), 0) FROM reviews r WHERE r.product_id = p.id) AS avg_rating
        FROM wishlist w
        JOIN products p ON w.product_id = p.id
-       WHERE w.user_id = ?
+       WHERE w.user_id = $1
        ORDER BY w.created_at DESC`,
       [req.user.id]
     );
-    res.json(rows);
+    result.rows.forEach((r) => {
+      r.price = Number(r.price);
+      r.avg_rating = Number(r.avg_rating);
+    });
+    res.json(result.rows);
   } catch (err) {
     next(err);
   }
@@ -40,15 +42,13 @@ router.post(
     const productId = req.body.product_id;
 
     try {
-      const [[product]] = await promisePool.query("SELECT id FROM products WHERE id = ?", [
-        productId,
-      ]);
-      if (!product) {
+      const productResult = await db.query("SELECT id FROM products WHERE id = $1", [productId]);
+      if (productResult.rows.length === 0) {
         return res.status(404).json({ message: "Produit introuvable" });
       }
 
-      await promisePool.query(
-        "INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)",
+      await db.query(
+        "INSERT INTO wishlist (user_id, product_id) VALUES ($1, $2) ON CONFLICT (user_id, product_id) DO NOTHING",
         [req.user.id, productId]
       );
 
@@ -63,11 +63,11 @@ router.post(
 // Logged-in user - remove a product from the wishlist
 router.delete("/:productId", verifyToken, async (req, res, next) => {
   try {
-    const [result] = await promisePool.query(
-      "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?",
+    const result = await db.query(
+      "DELETE FROM wishlist WHERE user_id = $1 AND product_id = $2",
       [req.user.id, req.params.productId]
     );
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ message: "Produit absent des favoris" });
     }
     res.json({ message: "Produit retiré des favoris" });

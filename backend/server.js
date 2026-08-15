@@ -13,6 +13,7 @@ const userRoutes = require("./routes/userRoutes");
 const ordersRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/adminRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const initDb = require("./scripts/initDb");
 
 const app = express();
 
@@ -98,6 +99,22 @@ app.use((err, req, res, next) => {
 
 // Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+async function runInitDb(retries = 5) {
+  const attempts = process.env.NODE_ENV === "production" ? retries : 1;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      await initDb();
+      return;
+    } catch (err) {
+      console.error(`[initDb] Tentative ${i}/${attempts} échouée: ${err.message}`);
+      if (i < attempts) await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
+}
+
+runInitDb().finally(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });

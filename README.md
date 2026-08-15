@@ -1,6 +1,6 @@
 # E-Commerce FullStack
 
-A complete e-commerce application built with **React (Vite) + Node.js (Express) + MySQL**.
+A complete e-commerce application built with **React (Vite) + Node.js (Express) + PostgreSQL**.
 
 ## Features
 
@@ -16,21 +16,21 @@ A complete e-commerce application built with **React (Vite) + Node.js (Express) 
 | Layer    | Technology                       |
 | -------- | -------------------------------- |
 | Frontend | React 18, Vite, React Router 6, Axios, Tailwind CSS |
-| Backend  | Node.js, Express 5, MySQL2, JWT, bcryptjs, Multer |
-| Database | MySQL 8                          |
+| Backend  | Node.js, Express 5, pg, JWT, bcryptjs, Multer |
+| Database | PostgreSQL                          |
 
 ## Project Structure
 
 ```
 E-Commerce-FullStack/
 ├── backend/
-│   ├── config/db.js            # MySQL connection pool
+│   ├── config/db.js            # PostgreSQL connection pool
 │   ├── controllers/            # Auth logic
 │   ├── middleware/             # Auth, admin, upload
 │   ├── models/                 # User data access
 │   ├── routes/                 # Products, auth, users, orders
 │   ├── uploads/                # Product images
-│   ├── database.sql            # Schema + seed data
+│   ├── postgres_schema.sql     # Schema + seed data
 │   └── server.js               # Express app
 └── frontend/
     ├── src/
@@ -45,20 +45,24 @@ E-Commerce-FullStack/
 ## Prerequisites
 
 - Node.js 18+
-- MySQL 8 (XAMPP, WAMP, or standalone)
+- PostgreSQL 14+ (local, Render, or Neon)
 
 ## Setup
 
 ### 1. Database
 
-Start MySQL, then create the schema and seed data:
+Create the database and load the schema + seed data:
 
 ```bash
-mysql -u root -p < backend/database.sql
+createdb ecommerce
+psql -U postgres -d ecommerce -f backend/postgres_schema.sql
 ```
 
 This creates the `ecommerce` database with `users`, `products`, `orders`, and
 `order_items` tables and inserts sample data.
+
+> Migrating existing data from a legacy MySQL database?
+> See `backend/scripts/migrate-mysql-to-pg.js`.
 
 > Default accounts (password `admin123` for both):
 > - Admin: `admin@ecommerce.com`
@@ -76,9 +80,11 @@ Configure `.env` (copy from the values below):
 ```
 PORT=5000
 DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_password
 DB_NAME=ecommerce
+DB_SSL=false
 JWT_SECRET=ChangeMeToASecureSecret
 ```
 

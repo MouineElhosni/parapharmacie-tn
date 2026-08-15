@@ -9,10 +9,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # --- PostgreSQL (managed: Render Postgres / Neon / Supabase) ---
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        value: 21889
+        value: "5432"
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD

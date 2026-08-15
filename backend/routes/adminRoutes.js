@@ -6,48 +6,61 @@ const isAdmin = require("../middleware/adminMiddleware");
 
 // GET /api/admin/stats
 // Admin only - dashboard statistics
-router.get("/stats", verifyToken, isAdmin, (req, res) => {
-  const countsSql = `
-    SELECT
-      (SELECT COUNT(*) FROM products) AS totalProducts,
-      (SELECT COUNT(*) FROM orders) AS totalOrders,
-      (SELECT COUNT(*) FROM users) AS totalUsers,
-      (SELECT COALESCE(SUM(total), 0) FROM orders) AS totalRevenue,
-      (SELECT COUNT(*) FROM orders WHERE status = 'pending') AS pendingOrders,
-      (SELECT COUNT(*) FROM products WHERE stock <= 5) AS lowStock
-  `;
+router.get("/stats", verifyToken, isAdmin, async (req, res, next) => {
+  try {
+    const countsSql = `
+      SELECT
+        (SELECT COUNT(*) FROM products) AS "totalProducts",
+        (SELECT COUNT(*) FROM orders) AS "totalOrders",
+        (SELECT COUNT(*) FROM users) AS "totalUsers",
+        (SELECT COALESCE(SUM(total), 0) FROM orders) AS "totalRevenue",
+        (SELECT COUNT(*) FROM orders WHERE status = 'pending') AS "pendingOrders",
+        (SELECT COUNT(*) FROM products WHERE stock <= 5) AS "lowStock"
+    `;
 
-  const lowStockSql = `
-    SELECT id, name, stock FROM products
-    WHERE stock <= 5
-    ORDER BY stock ASC
-    LIMIT 10
-  `;
+    const lowStockSql = `
+      SELECT id, name, stock FROM products
+      WHERE stock <= 5
+      ORDER BY stock ASC
+      LIMIT 10
+    `;
 
-  const recentSql = `
-    SELECT o.id, o.customer_name, o.total, o.status, o.created_at
-    FROM orders o
-    ORDER BY o.created_at DESC
-    LIMIT 5
-  `;
+    const recentSql = `
+      SELECT o.id, o.customer_name, o.total, o.status, o.created_at
+      FROM orders o
+      ORDER BY o.created_at DESC
+      LIMIT 5
+    `;
 
-  db.query(countsSql, (err, counts) => {
-    if (err) return res.status(500).json({ message: "Erreur interne du serveur" });
+    const [counts, lowStock, recentOrders] = await Promise.all([
+      db.query(countsSql),
+      db.query(lowStockSql),
+      db.query(recentSql),
+    ]);
 
-    db.query(lowStockSql, (err, lowStock) => {
-      if (err) return res.status(500).json({ message: "Erreur interne du serveur" });
+    const stats = counts.rows[0];
+    stats.totalProducts = Number(stats.totalProducts);
+    stats.totalOrders = Number(stats.totalOrders);
+    stats.totalUsers = Number(stats.totalUsers);
+    stats.totalRevenue = Number(stats.totalRevenue);
+    stats.pendingOrders = Number(stats.pendingOrders);
+    stats.lowStock = Number(stats.lowStock);
 
-      db.query(recentSql, (err, recentOrders) => {
-        if (err) return res.status(500).json({ message: "Erreur interne du serveur" });
-
-        res.json({
-          ...counts[0],
-          lowStock,
-          recentOrders,
-        });
-      });
+    lowStock.rows.forEach((r) => {
+      r.stock = Number(r.stock);
     });
-  });
+    recentOrders.rows.forEach((r) => {
+      r.total = Number(r.total);
+    });
+
+    res.json({
+      ...stats,
+      lowStock: lowStock.rows,
+      recentOrders: recentOrders.rows,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
