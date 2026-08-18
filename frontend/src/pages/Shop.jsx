@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import ProductCard from "../components/ProductCard";
@@ -83,12 +83,12 @@ function Shop() {
           placeholder="Rechercher un produit..."
           value={search}
           onChange={(e) => updateParam("search", e.target.value)}
-          className="border border-gray-300 rounded-xl px-4 py-3 flex-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="border border-gray-300 rounded-xl px-4 py-3 flex-1 focus:outline-none focus:ring-2 focus:ring-gold-400"
         />
         <select
           value={category}
           onChange={(e) => updateParam("category", e.target.value)}
-          className="border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-gold-400"
         >
           <option value="">Toutes les catégories</option>
           {categories.map((c) => (
@@ -100,7 +100,7 @@ function Shop() {
         <select
           value={sort}
           onChange={(e) => updateParam("sort", e.target.value)}
-          className="border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-gold-400"
         >
           <option value="newest">Nouveautés</option>
           <option value="price_asc">Prix croissant</option>
@@ -125,7 +125,7 @@ function Shop() {
           <p className="text-gray-400 text-lg">Aucun produit trouvé.</p>
           <button
             onClick={() => setSearchParams({})}
-            className="mt-4 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700"
+            className="mt-4 bg-brand-800 text-white px-6 py-2 rounded-lg hover:bg-brand-900"
           >
             Effacer les filtres
           </button>
@@ -161,7 +161,7 @@ function Shop() {
                     onClick={() => updateParam("page", n)}
                     className={`w-10 h-10 rounded-lg font-semibold transition ${
                       n === page
-                        ? "bg-emerald-600 text-white"
+                        ? "bg-brand-800 text-white"
                         : "bg-white shadow hover:bg-gray-100"
                     }`}
                   >

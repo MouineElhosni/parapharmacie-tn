@@ -1,4 +1,4 @@
-import usePageTitle from "../hooks/usePageTitle";
+﻿import usePageTitle from "../hooks/usePageTitle";
 
 const faqs = [
   {
@@ -44,9 +44,9 @@ function FAQ() {
             key={idx}
             className="bg-white rounded-2xl shadow-md overflow-hidden group"
           >
-            <summary className="cursor-pointer px-6 py-4 font-semibold text-gray-800 flex justify-between items-center hover:bg-emerald-50 transition">
+            <summary className="cursor-pointer px-6 py-4 font-semibold text-gray-800 flex justify-between items-center hover:bg-gold-50 transition">
               {f.q}
-              <span className="text-emerald-600 group-open:rotate-45 transition-transform">＋</span>
+              <span className="text-brand-800 group-open:rotate-45 transition-transform">＋</span>
             </summary>
             <div className="px-6 pb-5 text-gray-600 leading-relaxed">{f.a}</div>
           </details>

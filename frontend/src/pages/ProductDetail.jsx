@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import API, { productImage } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -44,10 +44,11 @@ function ProductDetail() {
 
   useEffect(() => {
     if (!product?.category) return;
+    const pid = product.id;
     API.get(`/products?category=${encodeURIComponent(product.category)}&limit=4&sort=rating`)
-      .then((res) => setRelated(res.data.products.filter((p) => p.id !== product.id)))
+      .then((res) => setRelated(res.data.products.filter((p) => p.id !== pid)))
       .catch(() => setRelated([]));
-  }, [product]);
+  }, [product?.category, product?.id]);
 
   const handleOrder = () => {
     navigate(`/commander/${product.id}`);
@@ -90,7 +91,7 @@ function ProductDetail() {
     return (
       <div className="text-center py-24">
         <p className="text-red-500 text-xl mb-4">{error || "Produit introuvable"}</p>
-        <Link to="/shop" className="text-emerald-600 font-semibold hover:underline">
+        <Link to="/shop" className="text-brand-800 font-semibold hover:underline">
           Retour à la boutique
         </Link>
       </div>
@@ -105,8 +106,8 @@ function ProductDetail() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <nav className="text-sm text-gray-400 mb-8">
-        <Link to="/" className="hover:text-emerald-600">Accueil</Link> /{" "}
-        <Link to="/shop" className="hover:text-emerald-600">Boutique</Link> /{" "}
+        <Link to="/" className="hover:text-brand-800">Accueil</Link> /{" "}
+        <Link to="/shop" className="hover:text-brand-800">Boutique</Link> /{" "}
         <span className="text-gray-600">{product.name}</span>
       </nav>
 
@@ -121,7 +122,7 @@ function ProductDetail() {
 
         <div>
           {product.category && (
-            <span className="bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full">
+            <span className="bg-gold-50 text-brand-800 text-xs font-semibold px-3 py-1 rounded-full">
               {product.category}
             </span>
           )}
@@ -139,7 +140,7 @@ function ProductDetail() {
               🔥 Promo week-end −{Math.round(((price - displayPrice) / price) * 100)}%
             </span>
           )}
-          <p className="text-3xl font-bold text-emerald-600 mt-2">
+          <p className="text-3xl font-bold text-brand-800 mt-2">
             {displayPrice.toFixed(2)} DT
             {onSale && (
               <span className="ml-2 text-lg text-gray-400 line-through font-normal">
@@ -153,7 +154,7 @@ function ProductDetail() {
             <button
               onClick={handleOrder}
               disabled={Number(product.stock) <= 0}
-              className="bg-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-brand-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-brand-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {Number(product.stock) <= 0 ? "En rupture de stock" : "🛵 Commander par livraison"}
             </button>
@@ -162,7 +163,7 @@ function ProductDetail() {
           <div className="mt-8 bg-white rounded-xl p-5 shadow">
             <div className="flex justify-between text-gray-600">
               <span>Disponibilité</span>
-              <span className={Number(product.stock) > 0 ? "text-emerald-600 font-semibold" : "text-red-600 font-semibold"}>
+              <span className={Number(product.stock) > 0 ? "text-brand-800 font-semibold" : "text-red-600 font-semibold"}>
                 {Number(product.stock) > 0 ? `En stock (${product.stock})` : "Rupture de stock"}
               </span>
             </div>
@@ -182,13 +183,13 @@ function ProductDetail() {
               value={myComment}
               onChange={(e) => setMyComment(e.target.value)}
               placeholder="Partagez votre expérience avec ce produit..."
-              className="mt-4 w-full border border-gray-300 rounded-xl p-3 h-24 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="mt-4 w-full border border-gray-300 rounded-xl p-3 h-24 focus:outline-none focus:ring-2 focus:ring-gold-400"
               maxLength={1000}
             />
             <button
               type="submit"
               disabled={reviewSubmitting}
-              className="mt-4 bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+              className="mt-4 bg-brand-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-brand-900 transition disabled:opacity-50"
             >
               {reviewSubmitting ? "Publication..." : "Publier mon avis"}
             </button>

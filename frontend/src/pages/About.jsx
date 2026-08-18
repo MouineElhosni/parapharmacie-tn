@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import TrustBadges from "../components/TrustBadges";
 import usePageTitle from "../hooks/usePageTitle";
 
@@ -14,10 +14,10 @@ function About() {
 
   return (
     <div>
-      <section className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-20 text-center">
+      <section className="bg-gradient-to-r from-brand-800 to-brand-900 text-white py-20 text-center">
         <div className="max-w-3xl mx-auto px-6">
           <h1 className="text-5xl font-bold">À propos de Parapharmacie.Tn</h1>
-          <p className="mt-6 text-lg text-emerald-50">
+          <p className="mt-6 text-lg text-brand-50">
             Votre parapharmacie en ligne de confiance : prendre soin de vous et de votre
             famille au quotidien, c'est notre métier.
           </p>
@@ -58,7 +58,7 @@ function About() {
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Prêt à découvrir nos produits ?</h2>
         <Link
           to="/shop"
-          className="inline-block mt-4 bg-emerald-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition"
+          className="inline-block mt-4 bg-brand-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-brand-900 transition"
         >
           Voir la boutique
         </Link>

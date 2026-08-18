@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useToast } from "../context/ToastContext";
 import { waLinkStore } from "../config";
 import usePageTitle from "../hooks/usePageTitle";
@@ -20,7 +20,7 @@ function Contact() {
   };
 
   const inputClass =
-    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500";
+    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400";
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
@@ -67,7 +67,7 @@ function Contact() {
             />
             <button
               type="submit"
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition"
+              className="w-full bg-brand-800 text-white py-3 rounded-lg font-semibold hover:bg-brand-900 transition"
             >
               Envoyer via WhatsApp
             </button>
@@ -79,8 +79,8 @@ function Contact() {
             <h2 className="text-2xl font-bold mb-4">Nos coordonnées</h2>
             <div className="space-y-4 text-gray-600">
               <p>📍 Béja, Béja, Tunisie</p>
-              <p>📞 <a href="tel:+21658940189" className="hover:text-emerald-600">+216 58 940 189</a></p>
-              <p>💬 <a href={waLinkStore("Bonjour 👋")} target="_blank" rel="noreferrer" className="hover:text-emerald-600">WhatsApp : +216 58 940 189</a></p>
+              <p>📞 <a href="tel:+21658940189" className="hover:text-brand-800">+216 58 940 189</a></p>
+              <p>💬 <a href={waLinkStore("Bonjour 👋")} target="_blank" rel="noreferrer" className="hover:text-brand-800">WhatsApp : +216 58 940 189</a></p>
               <a
                 href="https://www.facebook.com/share/1EDxg2Cedo/"
                 target="_blank"

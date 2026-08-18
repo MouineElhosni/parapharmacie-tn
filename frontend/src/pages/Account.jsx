@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API, { productImage } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -57,10 +57,11 @@ function Account() {
     }
   };
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!user) navigate("/login", { replace: true });
+  }, [user, navigate]);
+
+  if (!user) return null;
 
   const tabs = [
     { id: "orders", label: "Mes commandes" },
@@ -68,7 +69,7 @@ function Account() {
   ];
 
   const inputClass =
-    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500";
+    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400";
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
@@ -81,7 +82,7 @@ function Account() {
             onClick={() => setTab(t.id)}
             className={`px-6 py-2 rounded-lg font-semibold transition ${
               tab === t.id
-                ? "bg-emerald-600 text-white"
+                ? "bg-brand-800 text-white"
                 : "bg-white text-gray-700 hover:bg-gray-100 shadow"
             }`}
           >
@@ -100,7 +101,7 @@ function Account() {
               <p className="text-gray-500">Vous n'avez pas encore de commandes.</p>
               <button
                 onClick={() => navigate("/shop")}
-                className="mt-4 bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700"
+                className="mt-4 bg-brand-800 text-white px-6 py-2 rounded-lg hover:bg-brand-900"
               >
                 Découvrir la boutique
               </button>
@@ -121,7 +122,7 @@ function Account() {
                     >
                       {STATUS_LABELS[order.status] || order.status}
                     </span>
-                    <p className="text-emerald-600 font-bold mt-1">
+                    <p className="text-brand-800 font-bold mt-1">
                       {Number(order.total).toFixed(2)} DT
                       <span className="text-gray-400 text-sm font-normal ml-2">
                         Paiement à la livraison
@@ -191,7 +192,7 @@ function Account() {
               <button
                 type="submit"
                 disabled={profileLoading}
-                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+                className="w-full bg-brand-800 text-white py-3 rounded-lg font-semibold hover:bg-brand-900 transition disabled:opacity-50"
               >
                 {profileLoading ? "Enregistrement..." : "Enregistrer"}
               </button>

@@ -47,7 +47,7 @@ router.get("/", async (req, res, next) => {
 
     if (search) {
       params.push(`%${search}%`, `%${search}%`);
-      where += ` AND (products.name LIKE $${params.length - 1} OR products.description LIKE $${params.length})`;
+      where += ` AND (products.name ILIKE $${params.length - 1} OR products.description ILIKE $${params.length})`;
     }
 
     if (category) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import API, { productImage } from "../services/api";
 import { ORDER_STATUSES, STATUS_LABELS, statusColors } from "../utils/status";
 import { waLinkTo, STORE_NAME } from "../config";
@@ -215,7 +215,7 @@ function Admin() {
   ];
 
   const inputClass =
-    "border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500";
+    "border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400";
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -228,7 +228,7 @@ function Admin() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`px-6 py-2 rounded-lg font-semibold transition ${
-              tab === t.id ? "bg-emerald-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              tab === t.id ? "bg-brand-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             {t.label}
@@ -258,7 +258,7 @@ function Admin() {
                   label="Produits"
                   value={stats.totalProducts}
                   icon="📦"
-                  accent="bg-emerald-50"
+                  accent="bg-gold-50"
                 />
                 <StatCard
                   label="Commandes"
@@ -298,7 +298,7 @@ function Admin() {
                             <p className="text-sm text-gray-400">{new Date(o.created_at).toLocaleString()}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-emerald-600">{Number(o.total).toFixed(2)} DT</p>
+                            <p className="font-bold text-brand-800">{Number(o.total).toFixed(2)} DT</p>
                             <span className={`text-xs font-semibold px-2 py-1 rounded-full uppercase ${statusColors[o.status]}`}>
                               {STATUS_LABELS[o.status] || o.status}
                             </span>
@@ -346,7 +346,7 @@ function Admin() {
           <div className="flex items-center gap-3 mb-5 lg:hidden">
             <button
               onClick={scrollToForm}
-              className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-600/20 active:scale-[0.98] transition"
+              className="flex-1 bg-brand-800 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-brand-900/30 active:scale-[0.98] transition"
             >
               + Ajouter un produit
             </button>
@@ -433,7 +433,7 @@ function Admin() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => setImageFile(e.target.files[0])}
-                    className="w-full text-sm text-gray-500 bg-gray-50 border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:font-semibold file:text-sm"
+                    className="w-full text-sm text-gray-500 bg-gray-50 border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-brand-800 file:text-white file:font-semibold file:text-sm"
                   />
                 </div>
 
@@ -441,7 +441,7 @@ function Admin() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition disabled:opacity-50"
+                    className="flex-1 bg-brand-800 text-white py-4 rounded-xl font-bold text-lg hover:bg-brand-900 transition disabled:opacity-50"
                   >
                     {submitting ? "Enregistrement..." : editingId ? "Mettre à jour" : "Ajouter le produit"}
                   </button>
@@ -491,7 +491,7 @@ function Admin() {
                       <h3 className="font-bold break-words">{p.name}</h3>
                       <p className="text-sm text-gray-500 truncate">{p.description}</p>
                       <p className="text-sm mt-1">
-                        <span className="text-emerald-600 font-bold">{Number(p.price).toFixed(2)} DT</span>
+                        <span className="text-brand-800 font-bold">{Number(p.price).toFixed(2)} DT</span>
                         <span className="text-gray-400 ml-3">Stock : {p.stock}</span>
                         {p.category && (
                           <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full ml-3">
@@ -561,7 +561,7 @@ function Admin() {
                         </option>
                       ))}
                     </select>
-                    <p className="text-emerald-600 font-bold">
+                    <p className="text-brand-800 font-bold">
                       {Number(o.total).toFixed(2)} DT
                     </p>
                   </div>
@@ -735,7 +735,7 @@ function Admin() {
                           href={waLinkTo(s.phone, `Bonjour ${STORE_NAME} 👋`)}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-emerald-600 hover:underline"
+                          className="text-brand-800 hover:underline"
                         >
                           {s.phone}
                         </a>
@@ -749,7 +749,7 @@ function Admin() {
                         className={`text-xs font-semibold px-3 py-1 rounded-full uppercase ${
                           s.source === "order"
                             ? "bg-amber-50 text-amber-600"
-                            : "bg-emerald-50 text-emerald-600"
+                            : "bg-gold-50 text-brand-800"
                         }`}
                       >
                         {s.source}

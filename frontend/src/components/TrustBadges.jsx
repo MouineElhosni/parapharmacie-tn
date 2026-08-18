@@ -1,4 +1,4 @@
-const badges = [
+﻿const badges = [
   { icon: "🚚", title: "Livraison gratuite", text: "Partout en Tunisie, sous 48h" },
   { icon: "💵", title: "Paiement à la livraison", text: "En espèces à la réception" },
   { icon: "🌿", title: "Produits certifiés", text: "Qualité et sécurité garanties" },
@@ -14,7 +14,7 @@ function TrustBadges() {
             key={b.title}
             className="bg-white rounded-2xl shadow-md p-6 flex items-center gap-4 hover:shadow-xl transition"
           >
-            <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-3xl shrink-0">
+            <div className="w-14 h-14 rounded-full bg-gold-50 flex items-center justify-center text-3xl shrink-0">
               {b.icon}
             </div>
             <div>

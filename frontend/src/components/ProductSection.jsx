@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../services/api";
 import ProductCard from "./ProductCard";
@@ -25,7 +25,7 @@ function ProductSection() {
     <section className="max-w-7xl mx-auto px-6 py-16">
       <div className="flex justify-between items-center mb-12">
         <h2 className="text-4xl font-bold text-gray-800">Produits populaires</h2>
-        <Link to="/shop" className="text-emerald-600 font-semibold hover:underline">
+        <Link to="/shop" className="text-brand-800 font-semibold hover:underline">
           Voir tout →
         </Link>
       </div>

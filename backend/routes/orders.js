@@ -42,7 +42,6 @@ router.get("/", verifyToken, isAdmin, async (req, res, next) => {
 
       orders.forEach((o) => {
         o.total = Number(o.total);
-        o.delivery_fees = Number(o.delivery_fees);
         o.items = itemsByOrder[o.id] || [];
         o.items.forEach((it) => {
           it.price = Number(it.price);
@@ -85,7 +84,6 @@ router.get("/my", verifyToken, async (req, res, next) => {
 
       orders.forEach((o) => {
         o.total = Number(o.total);
-        o.delivery_fees = Number(o.delivery_fees);
         o.items = itemsByOrder[o.id] || [];
         o.items.forEach((it) => {
           it.price = Number(it.price);
@@ -129,7 +127,6 @@ router.get("/:id", verifyToken, async (req, res, next) => {
     );
 
     order.total = Number(order.total);
-    order.delivery_fees = Number(order.delivery_fees);
     const items = itemsResult.rows;
     items.forEach((it) => {
       it.price = Number(it.price);
@@ -190,7 +187,7 @@ router.post(
       return res.status(400).json({ message: errors.array()[0].msg });
     }
 
-    const { customer_name, customer_email, address, phone, payment_method, items } = req.body;
+    const { customer_name, customer_email, address, phone, city, notes, payment_method, items } = req.body;
     const userId = req.user ? req.user.id : null;
     const client = await db.connect();
 
@@ -236,10 +233,10 @@ router.post(
       total = Math.round(total * 100) / 100;
 
       const orderRes = await client.query(
-        `INSERT INTO orders (user_id, customer_name, customer_email, address, phone, payment_method, total)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO orders (user_id, customer_name, customer_email, address, phone, city, notes, payment_method, total)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING id`,
-        [userId, customer_name, customer_email, address, phone, payment_method || "cod", total]
+        [userId, customer_name, customer_email, address, phone, city || null, notes || null, payment_method || "cod", total]
       );
 
       const orderId = orderRes.rows[0].id;

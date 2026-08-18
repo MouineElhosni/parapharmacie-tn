@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { waLinkStore } from "../config";
 
 const MARQUEE_ITEMS = [
@@ -15,9 +15,9 @@ function Hero() {
       relative
       overflow-hidden
       bg-gradient-to-r
-      from-emerald-600
-      via-teal-600
-      to-cyan-600
+      from-brand-800
+      via-brand-700
+      to-brand-800
       animate-gradient
       text-white
       py-24
@@ -45,7 +45,7 @@ function Hero() {
             à portée de main
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-emerald-50">
+          <p className="mt-6 text-base sm:text-lg text-brand-50">
             Cosmétiques, soins de la peau, nutrition et hygiène de qualité.
             Livraison rapide dans toute la Tunisie.
           </p>
@@ -55,13 +55,13 @@ function Hero() {
               to="/shop"
               className="
                 bg-white
-                text-emerald-600
+                text-brand-800
                 px-8
                 py-3
                 rounded-xl
                 font-semibold
                 text-center
-                hover:bg-emerald-50
+                hover:bg-gold-50
                 hover:scale-105
                 transition
               "
@@ -82,7 +82,7 @@ function Hero() {
                 font-semibold
                 text-center
                 hover:bg-white
-                hover:text-emerald-600
+                hover:text-brand-800
                 transition
               "
             >
@@ -102,7 +102,7 @@ function Hero() {
           </div>
 
           {/* Carte flottante 1 */}
-          <div className="absolute -left-10 top-8 hidden lg:flex items-center gap-2 bg-white text-emerald-700 px-4 py-3 rounded-2xl shadow-xl animate-float">
+          <div className="absolute -left-10 top-8 hidden lg:flex items-center gap-2 bg-white text-brand-800 px-4 py-3 rounded-2xl shadow-xl animate-float">
             <span className="text-2xl">🧴</span>
             <div>
               <p className="font-bold text-xs">Soins & Cosmétiques</p>
@@ -111,7 +111,7 @@ function Hero() {
           </div>
 
           {/* Carte flottante 2 */}
-          <div className="absolute -right-8 bottom-16 hidden lg:flex items-center gap-2 bg-white text-emerald-700 px-4 py-3 rounded-2xl shadow-xl animate-float-slow">
+          <div className="absolute -right-8 bottom-16 hidden lg:flex items-center gap-2 bg-white text-brand-800 px-4 py-3 rounded-2xl shadow-xl animate-float-slow">
             <span className="text-2xl">⚡</span>
             <div>
               <p className="font-bold text-xs">Livraison rapide</p>
@@ -119,7 +119,7 @@ function Hero() {
             </div>
           </div>
 
-          <div className="absolute -bottom-4 -left-4 bg-white text-emerald-700 px-4 py-2 rounded-xl shadow-lg font-bold text-xs sm:text-sm">
+          <div className="absolute -bottom-4 -left-4 bg-white text-brand-800 px-4 py-2 rounded-xl shadow-lg font-bold text-xs sm:text-sm">
             Livraison gratuite dans toute la Tunisie 🚚
           </div>
         </div>
@@ -129,7 +129,7 @@ function Hero() {
       <div className="relative mt-16 overflow-hidden border-t border-white/10">
         <div className="flex whitespace-nowrap animate-marquee text-sm font-semibold tracking-wide py-3 w-max">
           {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
-            <span key={i} className="mx-8 text-emerald-50">
+            <span key={i} className="mx-8 text-brand-50">
               {item}
             </span>
           ))}

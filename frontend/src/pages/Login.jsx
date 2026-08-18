@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -37,7 +37,7 @@ function Login() {
   };
 
   const inputClass =
-    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500";
+    "border border-gray-300 w-full p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400";
 
   return (
     <div className="flex justify-center py-16 px-4">
@@ -71,7 +71,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-emerald-600 text-white w-full py-3 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+            className="bg-brand-800 text-white w-full py-3 rounded-lg font-semibold hover:bg-brand-900 transition disabled:opacity-50"
           >
             {loading ? "Connexion en cours..." : "Se connecter"}
           </button>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+﻿import { createContext, useContext, useState, useCallback } from "react";
 
 const ToastContext = createContext();
 
@@ -21,7 +21,7 @@ export function ToastProvider({ children }) {
           <div
             key={t.id}
             className={`px-4 py-3 rounded-lg shadow-lg font-semibold text-sm text-white animate-[fadeIn_.2s_ease] ${
-              t.type === "error" ? "bg-red-600" : "bg-emerald-600"
+              t.type === "error" ? "bg-red-600" : "bg-brand-800"
             }`}
           >
             {t.message}

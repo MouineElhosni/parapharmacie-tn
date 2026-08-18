@@ -21,6 +21,19 @@ async function initDb() {
   // pour créer les nouvelles tables (ex: subscribers) sur une base existante.
   await pool.query(schemaOnly);
 
+  // Migrations sur base existante : ajouter les colonnes manquantes
+  const migrations = [
+    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS city VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL",
+  ];
+  for (const sql of migrations) {
+    try {
+      await pool.query(sql);
+    } catch (err) {
+      console.error(`[initDb] Migration ignorée : ${err.message}`);
+    }
+  }
+
   if (rows[0].tbl) {
     const count = await pool.query("SELECT COUNT(*)::int AS count FROM products");
     if (count.rows[0].count === 0) {

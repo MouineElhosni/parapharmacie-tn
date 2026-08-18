@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import API, { productImage } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -62,6 +62,8 @@ function Order() {
         customer_email: form.customer_email,
         address: form.address,
         phone: form.phone,
+        city: form.city,
+        notes: form.notes,
         payment_method: "cod",
         items: [{ product_id: Number(id), quantity: Number(form.quantity) }],
       });
@@ -120,7 +122,7 @@ function Order() {
     return (
       <div className="text-center py-24">
         <p className="text-red-500 text-xl mb-4">{error || "Produit introuvable"}</p>
-        <Link to="/shop" className="text-emerald-600 font-semibold hover:underline">
+        <Link to="/shop" className="text-brand-800 font-semibold hover:underline">
           Retour à la boutique
         </Link>
       </div>
@@ -160,11 +162,11 @@ function Order() {
         <div className="bg-white rounded-3xl shadow-xl p-10">
           <p className="text-7xl mb-4">✅</p>
           <h1 className="text-3xl font-bold text-gray-800">Commande envoyée !</h1>
-          <p className="text-emerald-600 font-semibold mt-2">
+          <p className="text-brand-800 font-semibold mt-2">
             Merci pour votre confiance, {form.customer_name || "cher client"} ! 🙏
           </p>
           <p className="text-gray-500 mt-3">
-            Commande <span className="font-bold text-emerald-600">#{orderResult.orderId}</span> —{" "}
+            Commande <span className="font-bold text-brand-800">#{orderResult.orderId}</span> —{" "}
             {orderResult.total} DT
           </p>
           <p className="text-gray-500 mt-2">
@@ -184,15 +186,15 @@ function Order() {
           )}
 
           {!giftEarned && loyalty.ordersCount > 0 && (
-            <div className="mt-6 bg-emerald-50 rounded-2xl p-4 text-left">
-              <p className="text-sm font-semibold text-emerald-700">
+            <div className="mt-6 bg-gold-50 rounded-2xl p-4 text-left">
+              <p className="text-sm font-semibold text-brand-800">
                 🎁 Programme fidélité : plus que{" "}
                 <span className="font-bold">{nextGiftIn}</span> commande{nextGiftIn > 1 ? "s" : ""}{" "}
                 avant votre cadeau gratuit !
               </p>
-              <div className="mt-2 h-2.5 bg-emerald-100 rounded-full overflow-hidden">
+              <div className="mt-2 h-2.5 bg-gold-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-700"
+                  className="h-full bg-gradient-to-r from-brand-700 to-brand-900 rounded-full transition-all duration-700"
                   style={{ width: `${progressToGift}%` }}
                 />
               </div>
@@ -217,7 +219,7 @@ function Order() {
           </p>
           <Link
             to="/shop"
-            className="inline-block mt-8 text-emerald-600 font-semibold hover:underline"
+            className="inline-block mt-8 text-brand-800 font-semibold hover:underline"
           >
             ← Continuer mes achats
           </Link>
@@ -245,7 +247,7 @@ function Order() {
             <div className="p-6">
               <h2 className="text-xl font-bold text-gray-800">{product.name}</h2>
               <div className="flex items-baseline gap-2 mt-2">
-                <p className="text-emerald-600 text-2xl font-bold">
+                <p className="text-brand-800 text-2xl font-bold">
                   {displayPrice.toFixed(2)} DT
                 </p>
                 {onSale && (
@@ -282,7 +284,7 @@ function Order() {
                     const v = Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, stock));
                     setForm((prev) => ({ ...prev, quantity: v }));
                   }}
-                  className="w-16 text-center border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-16 text-center border border-gray-300 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
                 <button
                   type="button"
@@ -299,7 +301,7 @@ function Order() {
               </div>
               <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between font-semibold text-gray-800">
                 <span>Total</span>
-                <span className="text-emerald-600 text-xl">{total} DT</span>
+                <span className="text-brand-800 text-xl">{total} DT</span>
               </div>
               <p className="mt-3 text-xs text-gray-400">
                 💵 Paiement à la livraison — encaissement en espèces à la réception.
@@ -321,7 +323,7 @@ function Order() {
                   value={form.customer_name}
                   onChange={setField("customer_name")}
                   placeholder="Votre nom"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
               <div>
@@ -332,7 +334,7 @@ function Order() {
                   value={form.phone}
                   onChange={setField("phone")}
                   placeholder="Ex : 20 123 456"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -342,7 +344,7 @@ function Order() {
                   value={form.address}
                   onChange={setField("address")}
                   placeholder="Rue, numéro, quartier"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
               <div>
@@ -351,7 +353,7 @@ function Order() {
                   value={form.city}
                   onChange={setField("city")}
                   placeholder="Tunis"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
               <div>
@@ -361,7 +363,7 @@ function Order() {
                   type="email"
                   value={form.customer_email}
                   onChange={setField("customer_email")}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -373,16 +375,16 @@ function Order() {
                   onChange={setField("notes")}
                   placeholder="Précisions pour le livreur..."
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-400"
                 />
               </div>
             </div>
 
-            <div className="mt-6 bg-emerald-50 rounded-xl p-4 flex items-start gap-3">
+            <div className="mt-6 bg-gold-50 rounded-xl p-4 flex items-start gap-3">
               <span className="text-xl">🛵</span>
               <div>
-                <p className="font-bold text-emerald-800">Livraison gratuite à domicile</p>
-                <p className="text-sm text-emerald-700">
+                <p className="font-bold text-brand-900">Livraison gratuite à domicile</p>
+                <p className="text-sm text-brand-800">
                   Gratuite partout en Tunisie. Nous vous appelons pour vérifier la commande, puis
                   nous envoyons le livreur. Paiement à la réception.
                 </p>
@@ -392,7 +394,7 @@ function Order() {
             <button
               type="submit"
               disabled={submitting || stock <= 0}
-              className="mt-6 w-full bg-emerald-600 text-white font-bold py-4 rounded-xl hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 w-full bg-brand-800 text-white font-bold py-4 rounded-xl hover:bg-brand-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting
                 ? "Envoi de la commande..."

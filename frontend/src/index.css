@@ -1,15 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
   margin: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  background: linear-gradient(135deg, #f0fdf4, #ccfbf1, #f8fafc);
+  font-family: "Inter", Arial, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 0% -10%, rgba(201, 162, 39, 0.06), transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, rgba(18, 65, 56, 0.06), transparent 55%),
+    #faf9f4;
   min-height: 100vh;
   scroll-behavior: smooth;
+}
+
+/* Titres premium (Playfair Display) */
+h1,
+h2,
+h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 600;
 }
 
 html,
@@ -22,7 +31,17 @@ body {
 }
 
 /* Empêche les textes/éléments larges de déborder sur mobile */
-h1, h2, h3, h4, h5, p, a, span, li, td, th {
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+a,
+span,
+li,
+td,
+th {
   overflow-wrap: anywhere;
 }
 
@@ -33,8 +52,8 @@ video {
 }
 
 ::selection {
-  background: rgba(5, 150, 105, 0.2);
-  color: #065f46;
+  background: rgba(201, 162, 39, 0.25);
+  color: #0d322b;
 }
 
 /* Focus visible accessible */
@@ -43,19 +62,19 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #059669;
+  outline: 2px solid #c9a227;
   outline-offset: 2px;
 }
 
 .page-background {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(16, 185, 129, 0.15), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(5, 150, 105, 0.12), transparent 40%),
-    #f8fafc;
+    radial-gradient(1200px 600px at 0% -10%, rgba(201, 162, 39, 0.06), transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, rgba(18, 65, 56, 0.06), transparent 55%),
+    #faf9f4;
 }
 
-/* Toast animation */
+/* ============ Animations ============ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -67,7 +86,6 @@ textarea:focus-visible {
   }
 }
 
-/* Homepage animations */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -149,12 +167,4 @@ textarea:focus-visible {
   .animate-pop-in {
     animation: none;
   }
-}
-
-/* Clamp multi-line text */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
