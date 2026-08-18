@@ -266,12 +266,7 @@ function Admin() {
                   icon="🧾"
                   accent="bg-purple-50"
                 />
-                <StatCard
-                  label="Revenus"
-                  value={`${Number(stats.totalRevenue).toFixed(2)} DT`}
-                  icon="💰"
-                  accent="bg-green-50"
-                />
+
                 <StatCard
                   label="Clients"
                   value={stats.totalUsers}
@@ -280,61 +275,33 @@ function Admin() {
                 />
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-8">
-                {/* Recent orders */}
-                <div className="bg-white shadow-xl rounded-2xl p-6">
-                  <h2 className="text-xl font-bold mb-5">Commandes récentes</h2>
-                  {stats.recentOrders.length === 0 ? (
-                    <p className="text-gray-400 text-center py-6">Aucune commande.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {stats.recentOrders.map((o) => (
-                        <div
-                          key={o.id}
-                          className="flex justify-between items-center border-b pb-3"
-                        >
-                          <div>
-                            <p className="font-semibold">#{o.id} · {o.customer_name}</p>
-                            <p className="text-sm text-gray-400">{new Date(o.created_at).toLocaleString()}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-brand-800">{Number(o.total).toFixed(2)} DT</p>
-                            <span className={`text-xs font-semibold px-2 py-1 rounded-full uppercase ${statusColors[o.status]}`}>
-                              {STATUS_LABELS[o.status] || o.status}
-                            </span>
-                          </div>
+              <div className="bg-white shadow-xl rounded-2xl p-6">
+                <h2 className="text-xl font-bold mb-5">Commandes récentes</h2>
+                {stats.recentOrders.length === 0 ? (
+                  <p className="text-gray-400 text-center py-6">Aucune commande.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {stats.recentOrders.map((o) => (
+                      <div
+                        key={o.id}
+                        className="flex justify-between items-center border-b pb-3"
+                      >
+                        <div>
+                          <p className="font-semibold">#{o.id} · {o.customer_name}</p>
+                          <p className="text-sm text-gray-400">{new Date(o.created_at).toLocaleString()}</p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Low stock */}
-                <div className="bg-white shadow-xl rounded-2xl p-6">
-                  <h2 className="text-xl font-bold mb-5">Alerte stock faible</h2>
-                  {stats.lowStock.length === 0 ? (
-                    <p className="text-green-600 font-semibold text-center py-6">
-                      ✅ Tous les produits sont bien approvisionnés
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {stats.lowStock.map((p) => (
-                        <div
-                          key={p.id}
-                          className="flex justify-between items-center border-b pb-3"
-                        >
-                          <p className="font-semibold">{p.name}</p>
-                          <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                            p.stock === 0 ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600"
-                          }`}>
-                            {p.stock} restant(s)
+                        <div className="text-right">
+                          <p className="font-bold text-brand-800">{Number(o.total).toFixed(2)} DT</p>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full uppercase ${statusColors[o.status]}`}>
+                            {STATUS_LABELS[o.status] || o.status}
                           </span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
             </>
           )}
         </div>
