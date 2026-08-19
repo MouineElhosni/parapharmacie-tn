@@ -5,6 +5,7 @@ const db = require("../config/db");
 const verifyToken = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");
 const { upsertSubscriber } = require("../config/subscriber");
+const { sendWelcomeSubscriber } = require("../config/notifier");
 
 // POST /api/subscribers
 // Public - subscribe to product/promo notifications (WhatsApp and/or email)
@@ -29,6 +30,9 @@ router.post(
 
     try {
       await upsertSubscriber({ phone, email });
+      sendWelcomeSubscriber({ phone, email }).catch((err) =>
+        console.error("[subscribers] erreur welcome :", err.message)
+      );
       res.status(201).json({
         message: "Inscription enregistrée ! Vous recevrez les nouveautés et les promotions.",
       });

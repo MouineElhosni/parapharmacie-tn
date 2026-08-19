@@ -27,6 +27,10 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
 
+  // Promo notification form
+  const [promoForm, setPromoForm] = useState({ title: "", message: "", discount: "" });
+  const [promoSending, setPromoSending] = useState(false);
+
   // Product form state
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
@@ -83,12 +87,30 @@ function Admin() {
       .catch(() => showMessage("error", "Échec de la suppression"));
   };
 
+  const handleSendPromo = async (e) => {
+    e.preventDefault();
+    setPromoSending(true);
+    try {
+      const payload = { title: promoForm.title };
+      if (promoForm.message) payload.message = promoForm.message;
+      if (promoForm.discount) payload.discount = Number(promoForm.discount);
+      const res = await API.post("/admin/notify-promo", payload);
+      showMessage("success", res.data.message);
+      setPromoForm({ title: "", message: "", discount: "" });
+    } catch (err) {
+      showMessage("error", err.response?.data?.message || "Échec de l'envoi");
+    } finally {
+      setPromoSending(false);
+    }
+  };
+
   useEffect(() => {
     if (tab === "dashboard") loadStats();
     if (tab === "products") loadProducts();
     if (tab === "orders") loadOrders();
     if (tab === "users") loadUsers();
     if (tab === "subscribers") loadSubscribers();
+    if (tab === "notifications") loadSubscribers();
   }, [tab]);
 
   const handleChange = (e) => {
@@ -212,6 +234,7 @@ function Admin() {
     { id: "orders", label: "Commandes" },
     { id: "users", label: "Utilisateurs" },
     { id: "subscribers", label: "Abonnés" },
+    { id: "notifications", label: "Notifications" },
   ];
 
   const inputClass =
@@ -737,6 +760,88 @@ function Admin() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== NOTIFICATIONS ===================== */}
+      {tab === "notifications" && (
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="bg-white shadow-xl rounded-2xl p-6">
+            <h2 className="text-xl font-bold mb-2">Envoyer une notification</h2>
+            <p className="text-sm text-gray-400 mb-5">
+              Envoyez une notification WhatsApp et email à tous les abonnés ({subscribers.length} abonné{subscribers.length !== 1 ? "s" : ""}).
+            </p>
+
+            <form onSubmit={handleSendPromo} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-500 mb-1.5">Titre de l'offre *</label>
+                <input
+                  placeholder="Ex : Soldes d'été -30%"
+                  value={promoForm.title}
+                  onChange={(e) => setPromoForm({ ...promoForm, title: e.target.value })}
+                  className={inputClass}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-500 mb-1.5">Message (optionnel)</label>
+                <textarea
+                  placeholder="Décrivez l'offre en quelques mots..."
+                  value={promoForm.message}
+                  onChange={(e) => setPromoForm({ ...promoForm, message: e.target.value })}
+                  className={`${inputClass} h-20`}
+                  maxLength={500}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-500 mb-1.5">Réduction % (optionnel)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="90"
+                  placeholder="Ex : 30"
+                  value={promoForm.discount}
+                  onChange={(e) => setPromoForm({ ...promoForm, discount: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={promoSending || subscribers.length === 0}
+                className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-600 transition disabled:opacity-50"
+              >
+                {promoSending ? "Envoi en cours..." : `Envoyer à ${subscribers.length} abonné(s)`}
+              </button>
+            </form>
+
+            {subscribers.length === 0 && (
+              <p className="text-sm text-amber-600 mt-3 bg-amber-50 rounded-lg p-3">
+                Aucun abonné pour le moment. Les clients qui passent une commande ou s'inscrivent à la newsletter seront automatiquement abonnés.
+              </p>
+            )}
+          </div>
+
+          <div className="bg-white shadow-xl rounded-2xl p-6">
+            <h2 className="text-xl font-bold mb-4">Comment ça marche ?</h2>
+            <div className="space-y-3 text-sm text-gray-600">
+              <div className="flex items-start gap-3">
+                <span className="text-lg">🛒</span>
+                <p><strong>Commande :</strong> Le client est automatiquement abonné après sa première commande.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">📧</span>
+                <p><strong>Newsletter :</strong> Les inscrits à la newsletter reçoivent aussi les notifications.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">🆕</span>
+                <p><strong>Nouveau produit :</strong> Notification automatique quand vous ajoutez un produit.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-lg">🎉</span>
+                <p><strong>Promotions :</strong> Utilisez le formulaire ci-dessus pour envoyer une offre spéciale.</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

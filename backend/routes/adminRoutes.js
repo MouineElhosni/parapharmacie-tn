@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const { body, validationResult } = require("express-validator");
 const db = require("../config/db");
 const verifyToken = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");
+const { notifySubscribersPromo } = require("../config/notifier");
 
 // GET /api/admin/stats
 // Admin only - dashboard statistics
@@ -62,5 +64,42 @@ router.get("/stats", verifyToken, isAdmin, async (req, res, next) => {
     next(err);
   }
 });
+
+// POST /api/admin/notify-promo
+// Admin only - send promo/offer notification to all subscribers
+router.post(
+  "/notify-promo",
+  verifyToken,
+  isAdmin,
+  [
+    body("title").trim().notEmpty().withMessage("Le titre est requis"),
+    body("message").optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+    body("discount").optional({ checkFalsy: true }).isInt({ min: 1, max: 90 }),
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array()[0].msg });
+    }
+
+    const { title, message, discount } = req.body;
+
+    try {
+      const result = await notifySubscribersPromo({
+        title,
+        message: message || null,
+        discount: discount ? Number(discount) : null,
+      });
+
+      res.json({
+        message: `Notification envoyée à ${result.phones} téléphone(s) et ${result.emails} email(s)`,
+        phones: result.phones,
+        emails: result.emails,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 module.exports = router;
